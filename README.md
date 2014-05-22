@@ -1,5 +1,14 @@
-# tasks package
+# Tasks Package
 
-A short description of your package.
+Special formatting for .todo files. Allows you to easily add, complete,
+and archive your tasks.
 
-![A screenshot of your spankin' package](https://f.cloud.github.com/assets/69169/2290250/c35d867a-a017-11e3-86be-cd7c5bf3ff9b.gif)
+This is based primarily off of https://github.com/aziz/PlainTasks
+
+Any line that ends with : will be considered a header (like My Things:)
+
+## Hotkeys
+
+* cmd-enter: add a new todo item below the current
+* cmd-d: toggle completion of the task
+* cmd-a: move all completed tasks to the archive section
