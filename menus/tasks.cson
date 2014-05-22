@@ -1,0 +1,18 @@
+# See https://atom.io/docs/latest/creating-a-package#menus for more details
+'context-menu':
+  '.overlayer':
+    'Add Task': 'tasks:add'
+    'Complete Task': 'tasks:complete'
+    'Archive Tasks': 'tasks:archive'
+
+# 'menu': [
+#   {
+#     'label': 'Packages'
+#     'submenu': [
+#       'label': 'tasks'
+#       'submenu': [
+#         { 'label': 'Toggle', 'command': 'tasks:toggle' }
+#       ]
+#     ]
+#   }
+# ]

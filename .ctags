@@ -1,0 +1,3 @@
+--langdef=todo
+--langmap=todo:.todo
+--regex-todo=/[a-zA-Z]/d,definition/

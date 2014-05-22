@@ -1,0 +1,14 @@
+{
+  "name": "tasks",
+  "main": "./lib/tasks",
+  "version": "0.0.0",
+  "description": "A short description of your package",
+  "repository": "https://github.com/atom/tasks",
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "dependencies": {
+    "moment": "2.6.x"
+  }
+}

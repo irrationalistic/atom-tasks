@@ -1,0 +1,37 @@
+'fileTypes': [
+  'todo'
+]
+
+'name': 'Tasks'
+'patterns': [
+
+  {
+    'match': 'Archive:$'
+    'name': 'control.todo.header.archive'
+  }
+
+  {
+    'match': '(.*):$'
+    'name': 'control.todo.header'
+  }
+
+  {
+    'begin': '(☐)|(✔)'
+    'captures':
+      '1': 'name': 'keyword.todo.marker'
+      '2': 'name': 'keyword.todo.marker.complete'
+    'end': '\n'
+    'patterns': [
+      {
+        'match': '[^@]+'
+        'name': 'keyword.todo.text'
+      }
+
+      {
+        'match': '@[ ]?(?:([\\w ]+)?(?:\\((.*?)\\))?)'
+        'name':'keyword.todo.attribute'
+      }
+    ]
+  }
+]
+'scopeName': 'source.todo'
