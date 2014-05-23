@@ -19,8 +19,14 @@ module.exports =
   newTask: ->
     editor = atom.workspace.getActiveEditor()
     editor.transact ->
+      current_pos = editor.getCursorBufferPosition()
+      prev_line = editor.lineForBufferRow(current_pos.row)
+      indentLevel = prev_line.match(/^(\s+)/)?[0]
+      targTab = Array(atom.config.get('editor.tabLength') + 1).join(' ')
+      indentLevel = if not indentLevel then targTab else ''
       editor.insertNewlineBelow()
-      editor.insertText('☐ ')
+      # should have a minimum of one tab in
+      editor.insertText indentLevel + '☐ '
 
   completeTask: ->
     editor = atom.workspace.getActiveEditor()
@@ -79,7 +85,7 @@ module.exports =
         not found
 
       newText = original.join('\n') +
-        (if not hasArchive then "＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿\nArchive:\n" else '\n') +
+        (if not hasArchive then "\n＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿\nArchive:\n" else '\n') +
         completed.join('\n')
 
       if newText isnt text
