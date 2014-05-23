@@ -1,3 +1,12 @@
+## 0.2.1 - Changelog
+* Finally filled out the changelog
+* Fixed some formatting in readme
+
+## 0.2.0 - Publish to Atom
+* First publish to atom listing
+
 ## 0.1.0 - First Release
-* Every feature added
-* Every bug fixed
+* Base syntax highlighting
+* Actions for adding new tasks
+* Actions for completing tasks
+* Actions for archiving
