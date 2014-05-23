@@ -1,7 +1,7 @@
 {
   "name": "tasks",
   "main": "./lib/tasks",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Edit .todo files with special syntax highlighting and hotkeys",
   "repository": "https://github.com/irrationalistic/atom-tasks",
   "license": "MIT",
