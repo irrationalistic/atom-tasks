@@ -1,4 +1,7 @@
-moment = require 'moment'
+lpad = (value, padding) ->
+  zeroes = "0"
+  zeroes += "0" for i in [1..padding]
+  (zeroes + value).slice(padding * -1)
 
 module.exports =
 
@@ -56,7 +59,13 @@ module.exports =
 
         if text.indexOf('☐') > -1
           text = text.replace '☐', '✔'
-          text += " @done(#{moment().format('MM-DD-YY h:mm')})"
+          curDate = new Date()
+          timestamp = "#{lpad(curDate.getMonth(), 2)}-"
+          timestamp +="#{curDate.getDate()}-"
+          timestamp +="#{curDate.getFullYear().toString().substr(2)}"
+          timestamp +=" #{curDate.getHours()}:#{curDate.getMinutes()}"
+          # text += " @done(#{moment().format('MM-DD-YY h:mm')})"
+          text += " @done(#{timestamp})"
           text += " @project(#{lastProject})" if lastProject
         else
           text = text.replace '✔', '☐'

@@ -1,3 +1,6 @@
+## 0.3.0 - Removed Momentjs dependency
+* Removed momentjs
+
 ## 0.2.1 - Changelog
 * Finally filled out the changelog
 * Fixed some formatting in readme

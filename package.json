@@ -9,6 +9,5 @@
     "atom": ">0.50.0"
   },
   "dependencies": {
-    "moment": "2.6.x"
   }
 }

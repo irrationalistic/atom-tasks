@@ -1,6 +1,7 @@
 'fileTypes': [
   'todo'
 ]
+'scopeName': 'source.todo'
 
 'name': 'Tasks'
 'patterns': [
@@ -34,4 +35,3 @@
     ]
   }
 ]
-'scopeName': 'source.todo'
