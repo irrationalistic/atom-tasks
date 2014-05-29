@@ -1,3 +1,8 @@
+## 0.4.0 - Added custom date format settings
+* Added momentjs back in
+* Added custom setting for date format
+* Added function to convert dates in-file to format in settings
+
 ## 0.3.0 - Removed Momentjs dependency
 * Removed momentjs
 

@@ -11,6 +11,9 @@ Any line that ends with : will be considered a header (like My Things:)
 
 This uses utf characters, so it is still valid as a plain text document.
 
+You can also set a custom date/time format in the settings. These can be converted
+in an existing document using the Tasks: Update Timestamp Format.
+
 ## Hotkeys
 
 * **cmd-enter:** add a new todo item below the current
