@@ -1,3 +1,5 @@
+moment = require 'moment'
+
 lpad = (value, padding) ->
   zeroes = "0"
   zeroes += "0" for i in [1..padding]
@@ -5,10 +7,14 @@ lpad = (value, padding) ->
 
 module.exports =
 
+  configDefaults:
+    dateFormat: "YYYY-MM-DD hh:mm"
+
   activate: (state) ->
     atom.workspaceView.command "tasks:add", => @newTask()
     atom.workspaceView.command "tasks:complete", => @completeTask()
     atom.workspaceView.command "tasks:archive", => @tasksArchive()
+    atom.workspaceView.command "tasks:updateTimestamps", => @tasksUpdateTimestamp()
 
     atom.workspaceView.eachEditorView (editorView) ->
       path = editorView.getEditor().getPath()
@@ -59,13 +65,13 @@ module.exports =
 
         if text.indexOf('☐') > -1
           text = text.replace '☐', '✔'
-          curDate = new Date()
-          timestamp = "#{lpad(curDate.getMonth(), 2)}-"
-          timestamp +="#{curDate.getDate()}-"
-          timestamp +="#{curDate.getFullYear().toString().substr(2)}"
-          timestamp +=" #{curDate.getHours()}:#{curDate.getMinutes()}"
-          # text += " @done(#{moment().format('MM-DD-YY h:mm')})"
-          text += " @done(#{timestamp})"
+          # curDate = new Date()
+          # timestamp = "#{lpad(curDate.getMonth(), 2)}-"
+          # timestamp +="#{curDate.getDate()}-"
+          # timestamp +="#{curDate.getFullYear().toString().substr(2)}"
+          # timestamp +=" #{curDate.getHours()}:#{curDate.getMinutes()}"
+          text += " @done(#{moment().format(atom.config.get('tasks.dateFormat'))})"
+          # text += " @done(#{timestamp})"
           text += " @project(#{lastProject})" if lastProject
         else
           text = text.replace '✔', '☐'
@@ -75,6 +81,14 @@ module.exports =
 
         editor.setTextInBufferRange [sp,ep], text
       editor.setSelectedBufferRanges ranges
+
+  tasksUpdateTimestamp: ->
+    # Update timestamps to match the current setting (only for tags though)
+    editor = atom.workspace.getActiveEditor()
+    editor.transact ->
+      nText = editor.getText().replace /@done\(([^\)]+)\)/igm, (matches...)->
+        "@done(#{moment(matches[1]).format(atom.config.get('tasks.dateFormat'))})"
+      editor.setText nText
 
   tasksArchive: ->
     editor = atom.workspace.getActiveEditor()

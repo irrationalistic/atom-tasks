@@ -8,5 +8,7 @@
   "engines": {
     "atom": ">0.50.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "moment": "~2.6.0"
+  }
 }
