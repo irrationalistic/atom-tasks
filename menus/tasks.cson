@@ -1,6 +1,7 @@
 'context-menu':
-  '.overlayer':
+  '.task-list .overlayer':
     'Add Task': 'tasks:add'
     'Complete Task': 'tasks:complete'
     'Archive Tasks': 'tasks:archive'
     'Update Timestamp Format': 'tasks:updateTimestamps'
+    'Cancel Task': 'tasks:cancel'

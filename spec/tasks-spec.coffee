@@ -57,6 +57,16 @@ describe 'Tasks', ->
         expect(newText.indexOf('@done')).toBeGreaterThan -1
         expect(newText.indexOf('@project')).toBeGreaterThan -1
 
+  describe 'should be able to cancel tasks', ->
+    it 'cancels a task', ->
+      waitTest ->
+        editor.setCursorBufferPosition [1,0]
+        Tasks.cancelTask()
+        newText = editor.getText()
+        expect(editorView.find('.marker.cancelled').length).toBe 1
+        expect(newText.indexOf('@cancelled')).toBeGreaterThan -1
+        expect(newText.indexOf('@project')).toBeGreaterThan -1
+
   describe 'should be able to archive completed tasks', ->
     it 'creates an archive section', ->
       waitTest ->
@@ -79,3 +89,14 @@ describe 'Tasks', ->
         lines = newText.split('\n')
         lastLine = lines[lines.length-1]
         expect(lastLine).toContain '✔'
+
+    it 'moves cancelled tasks',
+      waitTest ->
+        preText = editor.getText()
+        editor.setCursorBufferPosition [1,0]
+        Tasks.cancelTask()
+        Tasks.tasksArchive()
+        newText = editor.getText()
+        lines = newText.split('\n')
+        lastLine = lines[lines.length-1]
+        expect(lastLine).toContain '✘'

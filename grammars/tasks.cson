@@ -17,10 +17,11 @@
   }
 
   {
-    'begin': '(☐)|(✔)'
+    'begin': '(☐)|(✔)|(✘)'
     'captures':
       '1': 'name': 'keyword.todo.marker'
       '2': 'name': 'keyword.todo.marker.complete'
+      '3': 'name': 'keyword.todo.marker.cancelled'
     'end': '\n'
     'patterns': [
       {

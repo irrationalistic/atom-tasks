@@ -5,6 +5,35 @@ lpad = (value, padding) ->
   zeroes += "0" for i in [1..padding]
   (zeroes + value).slice(padding * -1)
 
+mapSelectedItems = (editor, cb)->
+  ranges = editor.getSelectedBufferRanges()
+  coveredLines = []
+
+  ranges.map (range)->
+    coveredLines.push y for y in [range.start.row..range.end.row]
+
+  lastProject = undefined
+
+  coveredLines.map (row)->
+    sp = [row,0]
+    ep = [row,editor.lineLengthForBufferRow(row)]
+    text = editor.getTextInBufferRange [sp, ep]
+
+    for r in [row..0]
+      tsp = [r, 0]
+      tep = [r, editor.lineLengthForBufferRow(r)]
+      checkLine = editor.getTextInBufferRange [tsp, tep]
+      if checkLine.indexOf(':') is checkLine.length - 1
+        lastProject = checkLine.replace(':', '')
+        break
+
+    cb text, lastProject, sp, ep
+
+  {
+    lines: coveredLines
+    ranges: ranges
+  }
+
 module.exports =
 
   configDefaults:
@@ -15,6 +44,7 @@ module.exports =
     atom.workspaceView.command "tasks:complete", => @completeTask()
     atom.workspaceView.command "tasks:archive", => @tasksArchive()
     atom.workspaceView.command "tasks:updateTimestamps", => @tasksUpdateTimestamp()
+    atom.workspaceView.command "tasks:cancel", => @cancelTask()
 
     atom.workspaceView.eachEditorView (editorView) ->
       path = editorView.getEditor().getPath()
@@ -41,45 +71,36 @@ module.exports =
     editor = atom.workspace.getActiveEditor()
 
     editor.transact ->
-
-      ranges = editor.getSelectedBufferRanges()
-      coveredLines = []
-
-      ranges.map (range)->
-        coveredLines.push y for y in [range.start.row..range.end.row]
-
-      lastProject = undefined
-
-      coveredLines.map (row)->
-        sp = [row,0]
-        ep = [row,editor.lineLengthForBufferRow(row)]
-        text = editor.getTextInBufferRange [sp, ep]
-
-        for r in [row..0]
-          tsp = [r, 0]
-          tep = [r, editor.lineLengthForBufferRow(r)]
-          checkLine = editor.getTextInBufferRange [tsp, tep]
-          if checkLine.indexOf(':') is checkLine.length - 1
-            lastProject = checkLine.replace(':', '')
-            break
-
-        if text.indexOf('☐') > -1
-          text = text.replace '☐', '✔'
-          # curDate = new Date()
-          # timestamp = "#{lpad(curDate.getMonth(), 2)}-"
-          # timestamp +="#{curDate.getDate()}-"
-          # timestamp +="#{curDate.getFullYear().toString().substr(2)}"
-          # timestamp +=" #{curDate.getHours()}:#{curDate.getMinutes()}"
-          text += " @done(#{moment().format(atom.config.get('tasks.dateFormat'))})"
-          # text += " @done(#{timestamp})"
-          text += " @project(#{lastProject})" if lastProject
+      {lines, ranges} = mapSelectedItems editor, (line, lastProject, bufferStart, bufferEnd)->
+        if line.indexOf('☐') > -1
+          line = line.replace '☐', '✔'
+          line += " @done(#{moment().format(atom.config.get('tasks.dateFormat'))})"
+          line += " @project(#{lastProject})" if lastProject
         else
-          text = text.replace '✔', '☐'
-          text = text.replace /@done[ ]?\((.*?)\)/, ''
-          text = text.replace /@project[ ]?\((.*?)\)/, ''
-          text = text.trimRight()
+          line = line.replace '✔', '☐'
+          line = line.replace /@done[ ]?\((.*?)\)/, ''
+          line = line.replace /@project[ ]?\((.*?)\)/, ''
+          line = line.trimRight()
 
-        editor.setTextInBufferRange [sp,ep], text
+        editor.setTextInBufferRange [bufferStart,bufferEnd], line
+      editor.setSelectedBufferRanges ranges
+
+  cancelTask: ->
+    editor = atom.workspace.getActiveEditor()
+
+    editor.transact ->
+      {lines, ranges} = mapSelectedItems editor, (line, lastProject, bufferStart, bufferEnd)->
+        if line.indexOf('☐') > -1
+          line = line.replace '☐', '✘'
+          line += " @cancelled(#{moment().format(atom.config.get('tasks.dateFormat'))})"
+          line += " @project(#{lastProject})" if lastProject
+        else
+          line = line.replace '✘', '☐'
+          line = line.replace /@cancelled[ ]?\((.*?)\)/, ''
+          line = line.replace /@project[ ]?\((.*?)\)/, ''
+          line = line.trimRight()
+
+        editor.setTextInBufferRange [bufferStart,bufferEnd], line
       editor.setSelectedBufferRanges ranges
 
   tasksUpdateTimestamp: ->
@@ -103,7 +124,7 @@ module.exports =
 
       original = raw.filter (line)->
         hasArchive = true if line.indexOf('Archive:') > -1
-        found = '✔' in line
+        found = '✔' in line or '✘' in line
         completed.push line.replace(/^[ \t]+/, ' ') if found
         not found
 

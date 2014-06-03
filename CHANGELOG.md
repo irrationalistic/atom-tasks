@@ -1,3 +1,7 @@
+## 0.5.0 - Added task cancelling
+* Users can now cancel tasks
+* Fixed display of context menu to only show on todo files
+
 ## 0.4.0 - Added custom date format settings
 * Added momentjs back in
 * Added custom setting for date format

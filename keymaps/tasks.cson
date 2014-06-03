@@ -11,3 +11,4 @@
   'cmd-enter': 'tasks:add'
   'cmd-d': 'tasks:complete'
   'cmd-a': 'tasks:archive'
+  'ctrl-c': 'tasks:cancel'
