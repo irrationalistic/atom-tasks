@@ -54,15 +54,35 @@ module.exports =
 
   activate: (state) ->
 
+
+    marker = atom.config.get('tasks.baseMarker')
+    completeMarker = atom.config.get('tasks.completeMarker')
+    cancelledMarker = atom.config.get('tasks.cancelledMarker')
+
+    atom.config.observe 'tasks.baseMarker', (val)=> marker = val; @updateGrammar()
+    atom.config.observe 'tasks.completeMarker', (val)=> completeMarker = val; @updateGrammar()
+    atom.config.observe 'tasks.cancelledMarker', (val)=> cancelledMarker = val; @updateGrammar()
+
+    @updateGrammar()
+
+    atom.workspaceView.command "tasks:add", => @newTask()
+    atom.workspaceView.command "tasks:complete", => @completeTask()
+    atom.workspaceView.command "tasks:archive", => @tasksArchive()
+    atom.workspaceView.command "tasks:updateTimestamps", => @tasksUpdateTimestamp()
+    atom.workspaceView.command "tasks:cancel", => @cancelTask()
+
+    atom.workspaceView.eachEditorView (editorView) ->
+      path = editorView.getEditor().getPath()
+      if path.indexOf('.todo')>-1 or path.indexOf('.taskpaper')>-1
+        editorView.addClass 'task-list'
+
+  updateGrammar: ->
     clean = (str)->
       for pat in ['\\', '/', '[', ']', '*', '.', '+', '(', ')']
         str = str.replace pat, '\\' + pat
       str
 
     g = CSON.readFileSync __dirname + '/tasks.cson'
-    marker = atom.config.get('tasks.baseMarker')
-    completeMarker = atom.config.get('tasks.completeMarker')
-    cancelledMarker = atom.config.get('tasks.cancelledMarker')
     rep = (prop)->
       str = prop
       str = str.replace '☐', clean marker
@@ -81,20 +101,10 @@ module.exports =
 
     g.patterns = mat g.patterns
 
-    # console.log g
-
+    # first, clear existing grammar
+    atom.syntax.removeGrammarForScopeName 'source.todo'
+    # console.log 'setting to', g
     atom.syntax.addGrammar new Grammar atom.syntax, g
-
-    atom.workspaceView.command "tasks:add", => @newTask()
-    atom.workspaceView.command "tasks:complete", => @completeTask()
-    atom.workspaceView.command "tasks:archive", => @tasksArchive()
-    atom.workspaceView.command "tasks:updateTimestamps", => @tasksUpdateTimestamp()
-    atom.workspaceView.command "tasks:cancel", => @cancelTask()
-
-    atom.workspaceView.eachEditorView (editorView) ->
-      path = editorView.getEditor().getPath()
-      if path.indexOf('.todo')>-1 or path.indexOf('.taskpaper')>-1
-        editorView.addClass 'task-list'
 
   deactivate: ->
 

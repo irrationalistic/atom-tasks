@@ -1,3 +1,7 @@
+## 1.0.0 - Overhaul of Grammar
+* Grammar now set via code
+* Added ability to change markers via settings
+
 ## 0.5.0 - Added task cancelling
 * Users can now cancel tasks
 * Fixed display of context menu to only show on todo files
