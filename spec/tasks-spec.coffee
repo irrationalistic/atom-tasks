@@ -29,11 +29,11 @@ describe 'Tasks', ->
 
     it 'adds .attribute to @tags', ->
       waitTest ->
-        expect(editorView.find('.attribute').length).toBe 1
+        expect(editorView.find('.attribute').length).toBe 2
 
     it 'adds .text to plain text', ->
       waitTest ->
-        expect(editorView.find('.text').length).toBe 2
+        expect(editorView.find('.text').length).toBe 9
 
   describe 'should be able to add new tasks', ->
     it 'adds a new task', ->
@@ -53,7 +53,7 @@ describe 'Tasks', ->
         editor.setCursorBufferPosition [1,0]
         Tasks.completeTask()
         newText = editor.getText()
-        expect(editorView.find('.marker.complete').length).toBe 1
+        expect(editorView.find('.marker.done').length).toBe 1
         expect(newText.indexOf('@done')).toBeGreaterThan -1
         expect(newText.indexOf('@project')).toBeGreaterThan -1
 
@@ -88,7 +88,7 @@ describe 'Tasks', ->
         newText = editor.getText()
         lines = newText.split('\n')
         lastLine = lines[lines.length-1]
-        expect(lastLine).toContain '✔'
+        expect(lastLine).toContain '@done'
 
     it 'moves cancelled tasks',
       waitTest ->
@@ -99,4 +99,4 @@ describe 'Tasks', ->
         newText = editor.getText()
         lines = newText.split('\n')
         lastLine = lines[lines.length-1]
-        expect(lastLine).toContain '✘'
+        expect(lastLine).toContain '@cancelled'

@@ -1,4 +1,7 @@
 moment = require 'moment'
+CSON = require atom.config.resourcePath + "/node_modules/season/lib/cson.js"
+TaskGrammar = require './task-grammar'
+Grammar = require atom.config.resourcePath + "/node_modules/first-mate/lib/grammar.js"
 
 lpad = (value, padding) ->
   zeroes = "0"
@@ -34,12 +37,54 @@ mapSelectedItems = (editor, cb)->
     ranges: ranges
   }
 
+marker = completeMarker = cancelledMarker = ''
+projectRegex = /@project[ ]?\((.*?)\)/
+doneRegex = /@done[ ]?(?:\((.*?)\))?/
+cancelledRegex = /@cancelled[ ]?(?:\((.*?)\))?/
+
+
+# CORE MODULE
 module.exports =
 
   configDefaults:
     dateFormat: "YYYY-MM-DD hh:mm"
+    baseMarker: '☐'
+    completeMarker: '✔'
+    cancelledMarker: '✘'
 
   activate: (state) ->
+
+    clean = (str)->
+      for pat in ['\\', '/', '[', ']', '*', '.', '+', '(', ')']
+        str = str.replace pat, '\\' + pat
+      str
+
+    g = CSON.readFileSync __dirname + '/tasks.cson'
+    marker = atom.config.get('tasks.baseMarker')
+    completeMarker = atom.config.get('tasks.completeMarker')
+    cancelledMarker = atom.config.get('tasks.cancelledMarker')
+    rep = (prop)->
+      str = prop
+      str = str.replace '☐', clean marker
+      str = str.replace '✔', clean completeMarker
+      str = str.replace '✘', clean cancelledMarker
+    mat = (ob)->
+      res = []
+      for pat in ob
+        pat.begin = rep(pat.begin) if pat.begin
+        pat.end = rep(pat.end) if pat.end
+        pat.match = rep(pat.match) if pat.match
+        if pat.patterns
+          pat.patterns = mat pat.patterns
+        res.push pat
+      res
+
+    g.patterns = mat g.patterns
+
+    # console.log g
+
+    atom.syntax.addGrammar new Grammar atom.syntax, g
+
     atom.workspaceView.command "tasks:add", => @newTask()
     atom.workspaceView.command "tasks:complete", => @completeTask()
     atom.workspaceView.command "tasks:archive", => @tasksArchive()
@@ -48,7 +93,7 @@ module.exports =
 
     atom.workspaceView.eachEditorView (editorView) ->
       path = editorView.getEditor().getPath()
-      if path.indexOf('.todo')>-1
+      if path.indexOf('.todo')>-1 or path.indexOf('.taskpaper')>-1
         editorView.addClass 'task-list'
 
   deactivate: ->
@@ -65,21 +110,21 @@ module.exports =
       indentLevel = if not indentLevel then targTab else ''
       editor.insertNewlineBelow()
       # should have a minimum of one tab in
-      editor.insertText indentLevel + '☐ '
+      editor.insertText indentLevel + atom.config.get('tasks.baseMarker') + ' '
 
   completeTask: ->
     editor = atom.workspace.getActiveEditor()
 
     editor.transact ->
       {lines, ranges} = mapSelectedItems editor, (line, lastProject, bufferStart, bufferEnd)->
-        if line.indexOf('☐') > -1
-          line = line.replace '☐', '✔'
+        if not doneRegex.test line
+          line = line.replace marker, completeMarker
           line += " @done(#{moment().format(atom.config.get('tasks.dateFormat'))})"
           line += " @project(#{lastProject})" if lastProject
         else
-          line = line.replace '✔', '☐'
-          line = line.replace /@done[ ]?\((.*?)\)/, ''
-          line = line.replace /@project[ ]?\((.*?)\)/, ''
+          line = line.replace completeMarker, marker
+          line = line.replace doneRegex, ''
+          line = line.replace projectRegex, ''
           line = line.trimRight()
 
         editor.setTextInBufferRange [bufferStart,bufferEnd], line
@@ -90,14 +135,14 @@ module.exports =
 
     editor.transact ->
       {lines, ranges} = mapSelectedItems editor, (line, lastProject, bufferStart, bufferEnd)->
-        if line.indexOf('☐') > -1
-          line = line.replace '☐', '✘'
+        if not cancelledRegex.test line
+          line = line.replace marker, cancelledMarker
           line += " @cancelled(#{moment().format(atom.config.get('tasks.dateFormat'))})"
           line += " @project(#{lastProject})" if lastProject
         else
-          line = line.replace '✘', '☐'
-          line = line.replace /@cancelled[ ]?\((.*?)\)/, ''
-          line = line.replace /@project[ ]?\((.*?)\)/, ''
+          line = line.replace cancelledMarker, marker
+          line = line.replace cancelledRegex, ''
+          line = line.replace projectRegex, ''
           line = line.trimRight()
 
         editor.setTextInBufferRange [bufferStart,bufferEnd], line
@@ -124,8 +169,8 @@ module.exports =
 
       original = raw.filter (line)->
         hasArchive = true if line.indexOf('Archive:') > -1
-        found = '✔' in line or '✘' in line
-        completed.push line.replace(/^[ \t]+/, ' ') if found
+        found = doneRegex.test(line) or cancelledRegex.test(line)
+        completed.push line.replace(/^[ \t]+/, Array(atom.config.get('editor.tabLength') + 1).join(' ')) if found
         not found
 
       newText = original.join('\n') +

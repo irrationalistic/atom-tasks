@@ -1,0 +1,57 @@
+'fileTypes': [
+  'todo'
+  'taskpaper'
+]
+'scopeName': 'source.todo'
+
+'name': 'Tasks'
+'patterns': [
+
+  {
+    'match': 'Archive:$'
+    'name': 'control.tasks.header.archive'
+  }
+
+  {
+    'match': '(.*):$'
+    'name': 'control.tasks.header'
+  }
+
+  {
+    'begin': '^(?:[\\s]+?)(?=☐|✔|✘)'
+    'captures': '1': 'name': ''
+    'end': '\n'
+    'patterns': [
+      {
+        'match': '@([\\w]+) ?(?:\\((.*?)\\))?'
+        'name':'keyword.tasks.attribute.$1'
+      }
+
+      {
+        'match': '(✔)(.*)(?=@done)'
+        'captures':
+          '1': 'name': 'keyword.tasks.marker.done'
+          '2': 'name': 'keyword.tasks.text'
+      }
+
+      {
+        'match': '(✘)(.*)(?=@cancelled)'
+        'captures':
+          '1': 'name': 'keyword.tasks.marker.cancelled'
+          '2': 'name': 'keyword.tasks.text'
+      }
+
+      {
+        'match': '(☐)'
+        'captures':
+          '1': 'name': 'keyword.tasks.marker'
+          '2': 'name': 'keyword.tasks.text'
+      }
+
+      {
+        'match': '\\w'
+        'name': 'keyword.tasks.text'
+      }
+    ]
+  }
+]

@@ -2,8 +2,11 @@
 
 ![example](https://raw.githubusercontent.com/irrationalistic/atom-tasks/master/images/tasks_example.png)
 
-Special formatting for .todo files. Allows you to easily add, complete,
+Special formatting for .todo and .taskpaper files. Allows you to easily add, complete,
 and archive your tasks.
+
+Adjust the settings to match your ideal style. Change the markers to '-' to match
+taskpaper.
 
 This is based primarily off of https://github.com/aziz/PlainTasks
 

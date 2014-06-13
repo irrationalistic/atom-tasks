@@ -1,0 +1,8 @@
+Yard:
+  - Rake leaves
+  - Put away hose @priority(1)
+  - Clear garden
+Groceries:
+  - Milk
+  - Eggs
+  - Lettuce
