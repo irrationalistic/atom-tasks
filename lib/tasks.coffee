@@ -103,8 +103,14 @@ module.exports =
 
     # first, clear existing grammar
     atom.syntax.removeGrammarForScopeName 'source.todo'
-    # console.log 'setting to', g
-    atom.syntax.addGrammar new Grammar atom.syntax, g
+    newG = new Grammar atom.syntax, g
+    atom.syntax.addGrammar newG
+
+    # Reload all todo grammars to match
+    atom.workspaceView.eachEditorView (editorView) ->
+      path = editorView.getEditor().getPath()
+      if path.indexOf('.todo')>-1 or path.indexOf('.taskpaper')>-1
+        editorView.editor.reloadGrammar()
 
   deactivate: ->
 

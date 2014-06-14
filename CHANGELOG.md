@@ -1,3 +1,6 @@
+## 1.0.1 - Fix updating to new grammar
+* Open todo/tasklist files will reload their grammar on settings-change
+
 ## 1.0.0 - Overhaul of Grammar
 * Grammar now set via code
 * Added ability to change markers via settings
