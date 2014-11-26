@@ -7,8 +7,14 @@
 
 # For more detailed documentation see
 # https://atom.io/docs/latest/advanced/keymaps
-'.workspace .editor:not(.mini).task-list':
+'.platform-darwin .workspace .editor:not(.mini).task-list':
   'cmd-enter': 'tasks:add'
   'cmd-d': 'tasks:complete'
   'cmd-a': 'tasks:archive'
   'ctrl-c': 'tasks:cancel'
+
+'.platform-win32 .workspace .editor:not(.mini).task-list, .platform-linux .workspace .editor:not(.mini).task-list':
+  'ctrl-enter': 'tasks:add'
+  'ctrl-d': 'tasks:complete'
+  'ctrl-shift-a': 'tasks:archive'
+  'alt-c': 'tasks:cancel'
