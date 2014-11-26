@@ -71,10 +71,10 @@ module.exports =
     atom.workspaceView.command "tasks:updateTimestamps", => @tasksUpdateTimestamp()
     atom.workspaceView.command "tasks:cancel", => @cancelTask()
 
-    atom.workspaceView.eachEditorView (editorView) ->
-      path = editorView.getEditor().getPath()
-      if path.indexOf('.todo')>-1 or path.indexOf('.taskpaper')>-1
-        editorView.addClass 'task-list'
+    # atom.workspaceView.eachEditorView (editorView) ->
+    #   grammar
+    #   if path.indexOf('.todo')>-1 or path.indexOf('.taskpaper')>-1
+    #     editorView.addClass 'task-list'
 
   updateGrammar: ->
     clean = (str)->
@@ -108,9 +108,10 @@ module.exports =
 
     # Reload all todo grammars to match
     atom.workspaceView.eachEditorView (editorView) ->
-      path = editorView.getEditor().getPath()
-      if path.indexOf('.todo')>-1 or path.indexOf('.taskpaper')>-1
-        editorView.editor.reloadGrammar()
+      grammar = editorView.getEditor().getGrammar()
+      if grammar.name is 'Tasks'
+        # editorView.editor.reloadGrammar()
+        editorView.editor.setGrammar newG
 
   deactivate: ->
 
