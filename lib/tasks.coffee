@@ -122,8 +122,18 @@ module.exports =
     editor.transact ->
       current_pos = editor.getCursorBufferPosition()
       prev_line = editor.lineForBufferRow(current_pos.row)
+      startLine = current_pos.row
+
+      # Match the indentation of the previous line
+      # unless that line is a project definition, in which case,
+      # increase the indent one level
+      # while prev_line.match(/^(\s*)$/)
+      #   prev_line = editor.lineForBufferRow --startLine
+
       indentLevel = prev_line.match(/^(\s+)/)?[0]
       targTab = Array(atom.config.get('editor.tabLength') + 1).join(' ')
+      if prev_line.match /(.*):$/
+        indentLevel = null
       indentLevel = if not indentLevel then targTab else ''
       editor.insertNewlineBelow()
       # should have a minimum of one tab in
@@ -137,7 +147,7 @@ module.exports =
         if not doneRegex.test line
           line = line.replace marker, completeMarker
           line += " @done(#{moment().format(atom.config.get('tasks.dateFormat'))})"
-          line += " @project(#{lastProject})" if lastProject
+          line += " @project(#{lastProject.trim()})" if lastProject
         else
           line = line.replace completeMarker, marker
           line = line.replace doneRegex, ''
@@ -180,6 +190,9 @@ module.exports =
       ranges = editor.getSelectedBufferRanges()
       # move all completed tasks to the archive section
       text = editor.getText()
+      trimmedText = text.trimRight()
+      removedText = text.substr trimmedText.length
+      text = trimmedText
       raw = text.split('\n') #.filter (line)-> line isnt ''
       completed = []
       hasArchive = false
@@ -191,9 +204,11 @@ module.exports =
         not found
 
       newText = original.join('\n') +
-        (if not hasArchive then "\n＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿\nArchive:\n" else '\n') +
-        completed.join('\n')
-
+        (if not hasArchive then "\n＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿\nArchive:\n" else '') +
+        '\n' +
+        completed
+          .filter (l)-> l isnt ''
+          .join('\n') + removedText
       if newText isnt text
         editor.setText newText
         editor.setSelectedBufferRanges ranges
