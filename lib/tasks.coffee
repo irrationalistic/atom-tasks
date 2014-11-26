@@ -180,7 +180,7 @@ module.exports =
       ranges = editor.getSelectedBufferRanges()
       # move all completed tasks to the archive section
       text = editor.getText()
-      raw = text.split('\n').filter (line)-> line isnt ''
+      raw = text.split('\n') #.filter (line)-> line isnt ''
       completed = []
       hasArchive = false
 
