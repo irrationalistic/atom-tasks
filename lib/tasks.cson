@@ -31,26 +31,26 @@
         'match': '(✔)(.*)(?=@done)'
         'captures':
           '1': 'name': 'keyword.tasks.marker.done'
-          '2': 'name': 'keyword.tasks.text'
+          '2': 'name': 'tasks.text'
       }
 
       {
         'match': '(✘)(.*)(?=@cancelled)'
         'captures':
           '1': 'name': 'keyword.tasks.marker.cancelled'
-          '2': 'name': 'keyword.tasks.text'
+          '2': 'name': 'tasks.text'
       }
 
       {
         'match': '(☐)'
         'captures':
           '1': 'name': 'keyword.tasks.marker'
-          '2': 'name': 'keyword.tasks.text'
+          '2': 'name': 'tasks.text'
       }
 
       {
         'match': '\\w'
-        'name': 'keyword.tasks.text'
+        'name': 'tasks.text'
       }
     ]
   }

@@ -6,7 +6,6 @@ Grammar = require atom.config.resourcePath + "/node_modules/first-mate/lib/gramm
 
 class TaskGrammar extends Grammar
   constructor: (registry) ->
-    console.log 'test'
     name = "Tasks"
     scopeName = "source.todo"
 

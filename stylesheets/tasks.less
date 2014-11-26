@@ -5,11 +5,11 @@
 
     &.header { color: @text-color-warning; }
 
-    &.text { color: #FFF; }
+    //&.text { color: @text-color; }
 
     &.task { color: @text-color-subtle; }
 
-    &.marker { color: @text-color; }
+    &.marker { color: @text-color-subtle; }
 
     &.attribute { color: lighten(@text-color-info, 20%); }
 
@@ -21,7 +21,5 @@
     }
 
     &.cancelled.marker { color: @text-color-error; }
-
-    &.meta { color: red; }
   }
 }
