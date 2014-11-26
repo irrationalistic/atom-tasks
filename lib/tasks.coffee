@@ -47,7 +47,7 @@ cancelledRegex = /@cancelled[ ]?(?:\((.*?)\))?/
 module.exports =
 
   configDefaults:
-    dateFormat: "YYYY-MM-DD hh:mm"
+    dateFormat: "YYYY-MM-DD HH:mm"
     baseMarker: '☐'
     completeMarker: '✔'
     cancelledMarker: '✘'
