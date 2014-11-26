@@ -19,7 +19,14 @@ in an existing document using the Tasks: Update Timestamp Format.
 
 ## Hotkeys
 
+### Mac
 * **cmd-enter:** add a new todo item below the current
 * **cmd-d:** toggle completion of the task
 * **cmd-a:** move all completed tasks to the archive section
 * **ctrl-c:** cancel the selected tasks
+
+### PC, Linux
+* **ctrl-enter:** add a new todo item below the current
+* **ctrl-d:** toggle completion of the task
+* **ctrl-shift-a:** move all completed tasks to the archive section
+* **alt-c:** cancel the selected tasks
