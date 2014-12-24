@@ -119,6 +119,8 @@ module.exports =
 
   newTask: ->
     editor = atom.workspace.getActiveEditor()
+    return if not editor
+
     editor.transact ->
       current_pos = editor.getCursorBufferPosition()
       prev_line = editor.lineForBufferRow(current_pos.row)
@@ -141,6 +143,7 @@ module.exports =
 
   completeTask: ->
     editor = atom.workspace.getActiveEditor()
+    return if not editor
 
     editor.transact ->
       {lines, ranges} = mapSelectedItems editor, (line, lastProject, bufferStart, bufferEnd)->
@@ -159,6 +162,7 @@ module.exports =
 
   cancelTask: ->
     editor = atom.workspace.getActiveEditor()
+    return if not editor
 
     editor.transact ->
       {lines, ranges} = mapSelectedItems editor, (line, lastProject, bufferStart, bufferEnd)->
@@ -178,6 +182,8 @@ module.exports =
   tasksUpdateTimestamp: ->
     # Update timestamps to match the current setting (only for tags though)
     editor = atom.workspace.getActiveEditor()
+    return if not editor
+
     editor.transact ->
       nText = editor.getText().replace /@done\(([^\)]+)\)/igm, (matches...)->
         "@done(#{moment(matches[1]).format(atom.config.get('tasks.dateFormat'))})"
@@ -185,7 +191,8 @@ module.exports =
 
   tasksArchive: ->
     editor = atom.workspace.getActiveEditor()
-
+    return if not editor
+    
     editor.transact ->
       ranges = editor.getSelectedBufferRanges()
       # move all completed tasks to the archive section
