@@ -1,3 +1,6 @@
+## 1.2.2 - ShadowDom Support
+* Updated stylesheet selector to support shadow dom editor
+
 ## 1.0.1 - Fix updating to new grammar
 * Open todo/tasklist files will reload their grammar on settings-change
 
