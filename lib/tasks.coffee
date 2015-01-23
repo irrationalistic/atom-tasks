@@ -65,11 +65,17 @@ module.exports =
 
     @updateGrammar()
 
-    atom.workspaceView.command "tasks:add", => @newTask()
-    atom.workspaceView.command "tasks:complete", => @completeTask()
-    atom.workspaceView.command "tasks:archive", => @tasksArchive()
-    atom.workspaceView.command "tasks:updateTimestamps", => @tasksUpdateTimestamp()
-    atom.workspaceView.command "tasks:cancel", => @cancelTask()
+    # atom.workspaceView.command "tasks:add", => @newTask()
+    # atom.workspaceView.command "tasks:complete", => @completeTask()
+    # atom.workspaceView.command "tasks:archive", => @tasksArchive()
+    # atom.workspaceView.command "tasks:updateTimestamps", => @tasksUpdateTimestamp()
+    # atom.workspaceView.command "tasks:cancel", => @cancelTask()
+    atom.commands.add 'atom-text-editor',
+      "tasks:add": => @newTask()
+      "tasks:complete": => @completeTask()
+      "tasks:archive": => @tasksArchive()
+      "tasks:updateTimestamps": => @tasksUpdateTimestamp()
+      "tasks:cancel": => @cancelTask()
 
     # atom.workspaceView.eachEditorView (editorView) ->
     #   grammar
@@ -102,16 +108,16 @@ module.exports =
     g.patterns = mat g.patterns
 
     # first, clear existing grammar
-    atom.syntax.removeGrammarForScopeName 'source.todo'
-    newG = new Grammar atom.syntax, g
-    atom.syntax.addGrammar newG
+    atom.grammars.removeGrammarForScopeName 'source.todo'
+    newG = new Grammar atom.grammars, g
+    atom.grammars.addGrammar newG
 
     # Reload all todo grammars to match
-    atom.workspaceView.eachEditorView (editorView) ->
-      grammar = editorView.getEditor().getGrammar()
+    atom.workspace.getTextEditors().map (editorView) ->
+      grammar = editorView.getGrammar()
       if grammar.name is 'Tasks'
         # editorView.editor.reloadGrammar()
-        editorView.editor.setGrammar newG
+        editorView.setGrammar newG
 
   deactivate: ->
 
@@ -192,7 +198,7 @@ module.exports =
   tasksArchive: ->
     editor = atom.workspace.getActiveEditor()
     return if not editor
-    
+
     editor.transact ->
       ranges = editor.getSelectedBufferRanges()
       # move all completed tasks to the archive section

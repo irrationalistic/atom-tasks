@@ -7,13 +7,13 @@
 
 # For more detailed documentation see
 # https://atom.io/docs/latest/advanced/keymaps
-'.platform-darwin .workspace .editor:not(.mini)[data-grammar~="todo"]':
+'.platform-darwin atom-workspace atom-text-editor:not(.mini)[data-grammar~="todo"]':
   'cmd-enter': 'tasks:add'
   'cmd-d': 'tasks:complete'
   'cmd-a': 'tasks:archive'
   'ctrl-c': 'tasks:cancel'
 
-'.platform-win32 .workspace .editor:not(.mini)[data-grammar~="todo"], .platform-linux .workspace .editor:not(.mini)[data-grammar~="todo"]':
+'.platform-win32 atom-workspace atom-text-editor:not(.mini)[data-grammar~="todo"], .platform-linux atom-workspace atom-text-editor:not(.mini)[data-grammar~="todo"]':
   'ctrl-enter': 'tasks:add'
   'ctrl-d': 'tasks:complete'
   'ctrl-shift-a': 'tasks:archive'

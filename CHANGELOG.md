@@ -1,3 +1,6 @@
+## 1.2.3 - Deprecation Fixes
+* Updated to fix deprecation notices
+
 ## 1.2.2 - ShadowDom Support
 * Updated stylesheet selector to support shadow dom editor
 
