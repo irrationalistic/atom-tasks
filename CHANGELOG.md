@@ -1,4 +1,4 @@
-## 1.2.3 - Deprecation Fixes
+## 1.2.4 - Deprecation Fixes
 * Updated to fix deprecation notices
 
 ## 1.2.2 - ShadowDom Support
