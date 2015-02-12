@@ -18,6 +18,11 @@ atom-text-editor::shadow, atom-text-editor {
       &.attribute { color: darken(@text-color-info, 20%); }
     }
 
-    &.cancelled.marker { color: @text-color-error; }
+    &.time { color: darken(@text-color-info, 20%); }
+    
+    &.clock,
+    &.cancelled.marker {
+      color: @text-color-error;
+    }
   }
 }
