@@ -38,10 +38,25 @@ mapSelectedItems = (editor, cb)->
     ranges: ranges
   }
 
+clockOut = (line) ->
+  clockMatch = line.match clockRegex
+  workDelta = moment.duration(moment().diff(moment(clockMatch[1], atom.config.get('tasks.dateFormat'))))
+  line = line.replace clockRegex, ''
+  line = line.trimRight()
+  if timeRegex.test line
+    timeMatch = line.match timeRegex
+    time = moment.duration(timeMatch[1])
+    workDelta.add(time)
+    line = line.replace timeRegex, ''
+    line = line.trimRight()
+  line += " @time(#{Math.floor(workDelta.asDays())}.#{workDelta.hours()}:#{workDelta.minutes()})"
+
 marker = completeMarker = cancelledMarker = ''
 projectRegex = /@project[ ]?\((.*?)\)/
 doneRegex = /@done[ ]?(?:\((.*?)\))?/
 cancelledRegex = /@cancelled[ ]?(?:\((.*?)\))?/
+clockRegex = /@clock[ ]?(?:\((.*?)\))?/
+timeRegex = /@time[ ]?(?:\((.*?)\))?/
 
 
 # CORE MODULE
@@ -83,6 +98,7 @@ module.exports =
       "tasks:archive": => @tasksArchive()
       "tasks:updateTimestamps": => @tasksUpdateTimestamp()
       "tasks:cancel": => @cancelTask()
+      "tasks:clock": => @clock()
 
   updateGrammar: ->
     clean = (str)->
@@ -156,6 +172,8 @@ module.exports =
     editor.transact ->
       {lines, ranges} = mapSelectedItems editor,
         (line, lastProject, bufferStart, bufferEnd)->
+          if clockRegex.test line
+              line = clockOut line
           if not doneRegex.test line
             line = line.replace marker, completeMarker
             date = moment().format(atom.config.get('tasks.dateFormat'))
@@ -177,6 +195,8 @@ module.exports =
     editor.transact ->
       {lines, ranges} = mapSelectedItems editor,
         (line, lastProject, bufferStart, bufferEnd)->
+          if clockRegex.test line
+            line = clockOut line
           if not cancelledRegex.test line
             line = line.replace marker, cancelledMarker
             date = moment().format(atom.config.get('tasks.dateFormat'))
@@ -201,6 +221,19 @@ module.exports =
         date = moment(matches[1]).format(atom.config.get('tasks.dateFormat'))
         "@done(#{date})"
       editor.setText nText
+
+  clock: ->
+    editor = atom.workspace.getActiveEditor()
+    return if not editor
+
+    editor.transact ->
+      {lines, ranges} = mapSelectedItems editor, (line, lastProject, bufferStart, bufferEnd)->
+        if not clockRegex.test line
+          line += " @clock(#{moment().format(atom.config.get('tasks.dateFormat'))})"
+        else
+          line = clockOut line
+        editor.setTextInBufferRange [bufferStart,bufferEnd], line
+      editor.setSelectedBufferRanges ranges
 
   tasksArchive: ->
     editor = atom.workspace.getActiveTextEditor()
