@@ -21,5 +21,9 @@
       'label': 'Cancel Task',
       'command': 'tasks:cancel'
     }
+    {
+      'label': 'Clock Task'
+      'command': 'tasks:clock'
+    }
     {'type': 'separator'}
   ]
