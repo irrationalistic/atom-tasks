@@ -1,7 +1,8 @@
 moment = require 'moment'
 CSON = require atom.config.resourcePath + "/node_modules/season/lib/cson.js"
 TaskGrammar = require './task-grammar'
-Grammar = require atom.config.resourcePath + "/node_modules/first-mate/lib/grammar.js"
+Grammar = require atom.config.resourcePath +
+  "/node_modules/first-mate/lib/grammar.js"
 
 lpad = (value, padding) ->
   zeroes = "0"
@@ -19,12 +20,12 @@ mapSelectedItems = (editor, cb)->
 
   coveredLines.map (row)->
     sp = [row,0]
-    ep = [row,editor.lineLengthForBufferRow(row)]
+    ep = [row,editor.lineTextForBufferRow(row).length]
     text = editor.getTextInBufferRange [sp, ep]
 
     for r in [row..0]
       tsp = [r, 0]
-      tep = [r, editor.lineLengthForBufferRow(r)]
+      tep = [r, editor.lineTextForBufferRow(r).length]
       checkLine = editor.getTextInBufferRange [tsp, tep]
       if checkLine.indexOf(':') is checkLine.length - 1
         lastProject = checkLine.replace(':', '')
@@ -46,11 +47,19 @@ cancelledRegex = /@cancelled[ ]?(?:\((.*?)\))?/
 # CORE MODULE
 module.exports =
 
-  configDefaults:
-    dateFormat: "YYYY-MM-DD HH:mm"
-    baseMarker: '☐'
-    completeMarker: '✔'
-    cancelledMarker: '✘'
+  config:
+    dateFormat:
+      type: 'string'
+      default: "YYYY-MM-DD HH:mm"
+    baseMarker:
+      type: 'string'
+      default: '☐'
+    completeMarker:
+      type: 'string'
+      default: '✔'
+    cancelledMarker:
+      type: 'string'
+      default: '✘'
 
   activate: (state) ->
 
@@ -59,28 +68,21 @@ module.exports =
     completeMarker = atom.config.get('tasks.completeMarker')
     cancelledMarker = atom.config.get('tasks.cancelledMarker')
 
-    atom.config.observe 'tasks.baseMarker', (val)=> marker = val; @updateGrammar()
-    atom.config.observe 'tasks.completeMarker', (val)=> completeMarker = val; @updateGrammar()
-    atom.config.observe 'tasks.cancelledMarker', (val)=> cancelledMarker = val; @updateGrammar()
+    atom.config.observe 'tasks.baseMarker', (val)=>
+      marker = val; @updateGrammar()
+    atom.config.observe 'tasks.completeMarker', (val)=>
+      completeMarker = val; @updateGrammar()
+    atom.config.observe 'tasks.cancelledMarker', (val)=>
+      cancelledMarker = val; @updateGrammar()
 
     @updateGrammar()
 
-    # atom.workspaceView.command "tasks:add", => @newTask()
-    # atom.workspaceView.command "tasks:complete", => @completeTask()
-    # atom.workspaceView.command "tasks:archive", => @tasksArchive()
-    # atom.workspaceView.command "tasks:updateTimestamps", => @tasksUpdateTimestamp()
-    # atom.workspaceView.command "tasks:cancel", => @cancelTask()
     atom.commands.add 'atom-text-editor',
       "tasks:add": => @newTask()
       "tasks:complete": => @completeTask()
       "tasks:archive": => @tasksArchive()
       "tasks:updateTimestamps": => @tasksUpdateTimestamp()
       "tasks:cancel": => @cancelTask()
-
-    # atom.workspaceView.eachEditorView (editorView) ->
-    #   grammar
-    #   if path.indexOf('.todo')>-1 or path.indexOf('.taskpaper')>-1
-    #     editorView.addClass 'task-list'
 
   updateGrammar: ->
     clean = (str)->
@@ -124,12 +126,12 @@ module.exports =
   serialize: ->
 
   newTask: ->
-    editor = atom.workspace.getActiveEditor()
+    editor = atom.workspace.getActiveTextEditor()
     return if not editor
 
     editor.transact ->
       current_pos = editor.getCursorBufferPosition()
-      prev_line = editor.lineForBufferRow(current_pos.row)
+      prev_line = editor.lineTextForBufferRow(current_pos.row)
       startLine = current_pos.row
 
       # Match the indentation of the previous line
@@ -148,55 +150,60 @@ module.exports =
       editor.insertText indentLevel + atom.config.get('tasks.baseMarker') + ' '
 
   completeTask: ->
-    editor = atom.workspace.getActiveEditor()
+    editor = atom.workspace.getActiveTextEditor()
     return if not editor
 
     editor.transact ->
-      {lines, ranges} = mapSelectedItems editor, (line, lastProject, bufferStart, bufferEnd)->
-        if not doneRegex.test line
-          line = line.replace marker, completeMarker
-          line += " @done(#{moment().format(atom.config.get('tasks.dateFormat'))})"
-          line += " @project(#{lastProject.trim()})" if lastProject
-        else
-          line = line.replace completeMarker, marker
-          line = line.replace doneRegex, ''
-          line = line.replace projectRegex, ''
-          line = line.trimRight()
+      {lines, ranges} = mapSelectedItems editor,
+        (line, lastProject, bufferStart, bufferEnd)->
+          if not doneRegex.test line
+            line = line.replace marker, completeMarker
+            date = moment().format(atom.config.get('tasks.dateFormat'))
+            line += " @done(#{date})"
+            line += " @project(#{lastProject.trim()})" if lastProject
+          else
+            line = line.replace completeMarker, marker
+            line = line.replace doneRegex, ''
+            line = line.replace projectRegex, ''
+            line = line.trimRight()
 
-        editor.setTextInBufferRange [bufferStart,bufferEnd], line
+          editor.setTextInBufferRange [bufferStart,bufferEnd], line
       editor.setSelectedBufferRanges ranges
 
   cancelTask: ->
-    editor = atom.workspace.getActiveEditor()
+    editor = atom.workspace.getActiveTextEditor()
     return if not editor
 
     editor.transact ->
-      {lines, ranges} = mapSelectedItems editor, (line, lastProject, bufferStart, bufferEnd)->
-        if not cancelledRegex.test line
-          line = line.replace marker, cancelledMarker
-          line += " @cancelled(#{moment().format(atom.config.get('tasks.dateFormat'))})"
-          line += " @project(#{lastProject})" if lastProject
-        else
-          line = line.replace cancelledMarker, marker
-          line = line.replace cancelledRegex, ''
-          line = line.replace projectRegex, ''
-          line = line.trimRight()
+      {lines, ranges} = mapSelectedItems editor,
+        (line, lastProject, bufferStart, bufferEnd)->
+          if not cancelledRegex.test line
+            line = line.replace marker, cancelledMarker
+            date = moment().format(atom.config.get('tasks.dateFormat'))
+            line += " @cancelled(#{date})"
+            line += " @project(#{lastProject})" if lastProject
+          else
+            line = line.replace cancelledMarker, marker
+            line = line.replace cancelledRegex, ''
+            line = line.replace projectRegex, ''
+            line = line.trimRight()
 
-        editor.setTextInBufferRange [bufferStart,bufferEnd], line
+          editor.setTextInBufferRange [bufferStart,bufferEnd], line
       editor.setSelectedBufferRanges ranges
 
   tasksUpdateTimestamp: ->
     # Update timestamps to match the current setting (only for tags though)
-    editor = atom.workspace.getActiveEditor()
+    editor = atom.workspace.getActiveTextEditor()
     return if not editor
 
     editor.transact ->
       nText = editor.getText().replace /@done\(([^\)]+)\)/igm, (matches...)->
-        "@done(#{moment(matches[1]).format(atom.config.get('tasks.dateFormat'))})"
+        date = moment(matches[1]).format(atom.config.get('tasks.dateFormat'))
+        "@done(#{date})"
       editor.setText nText
 
   tasksArchive: ->
-    editor = atom.workspace.getActiveEditor()
+    editor = atom.workspace.getActiveTextEditor()
     return if not editor
 
     editor.transact ->
@@ -213,7 +220,8 @@ module.exports =
       original = raw.filter (line)->
         hasArchive = true if line.indexOf('Archive:') > -1
         found = doneRegex.test(line) or cancelledRegex.test(line)
-        completed.push line.replace(/^[ \t]+/, Array(atom.config.get('editor.tabLength') + 1).join(' ')) if found
+        tabs = Array(atom.config.get('editor.tabLength') + 1).join(' ')
+        completed.push line.replace(/^[ \t]+/, tabs) if found
         not found
 
       newText = original.join('\n') +
