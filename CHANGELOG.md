@@ -1,3 +1,8 @@
+## 1.2.5 - More fixes and cleanup
+* Removed some editor deprecations
+* Fixed the specs
+* General cleanup
+
 ## 1.2.4 - Deprecation Fixes
 * Updated to fix deprecation notices
 
