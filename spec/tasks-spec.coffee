@@ -31,7 +31,7 @@ describe 'Tasks', ->
       expect(find('.attribute').length).toBe 2
 
     it 'adds .text to plain text', ->
-      expect(find('.text').length).toBe 9
+      expect(find('.text').length).toBe 3
 
   describe 'should be able to add new tasks', ->
     it 'adds a new task', ->

@@ -1,3 +1,6 @@
+## 1.3.0 - Wrapping support
+* Updated grammar to support multi-line items
+
 ## 1.2.5 - More fixes and cleanup
 * Removed some editor deprecations
 * Fixed the specs

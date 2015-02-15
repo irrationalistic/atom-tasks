@@ -18,40 +18,107 @@
   }
 
   {
-    'begin': '^(?:[\\s]+?)(?=☐|✔|✘)'
-    'captures': '1': 'name': ''
-    'end': '\n'
+    'begin': '^(?:[\\s]+?)(?=☐)'
+    'end': '$'
     'patterns': [
       {
         'match': '@([\\w]+) ?(?:\\((.*?)\\))?'
         'name':'keyword.tasks.attribute.$1'
       }
-
-      {
-        'match': '(✔)(.*)(?=@done)'
-        'captures':
-          '1': 'name': 'keyword.tasks.marker.done'
-          '2': 'name': 'tasks.text'
-      }
-
-      {
-        'match': '(✘)(.*)(?=@cancelled)'
-        'captures':
-          '1': 'name': 'keyword.tasks.marker.cancelled'
-          '2': 'name': 'tasks.text'
-      }
-
       {
         'match': '(☐)'
         'captures':
           '1': 'name': 'keyword.tasks.marker'
           '2': 'name': 'tasks.text'
       }
-
       {
-        'match': '\\w'
+        'match': '.'
         'name': 'tasks.text'
       }
     ]
   }
+
+  {
+    'begin': '^(?:[\\s]+?)(?=✔)'
+    'end': '$'
+    'patterns': [
+      {
+        'match': '@([\\w]+) ?(?:\\((.*?)\\))?'
+        'name':'keyword.tasks.attribute.$1.done'
+      }
+      {
+        'match': '(✔)'
+        'captures':
+          '1': 'name': 'keyword.tasks.marker.done'
+          '2': 'name': 'tasks.text.done'
+      }
+      {
+        'match': '.'
+        'name': 'tasks.text.done'
+      }
+    ]
+  }
+  {
+    'begin': '^(?:[\\s]+?)(?=✘)'
+    'end': '$'
+    'patterns': [
+      {
+        'match': '@([\\w]+) ?(?:\\((.*?)\\))?'
+        'name':'keyword.tasks.attribute.$1.cancelled'
+      }
+      {
+        'match': '(✘)'
+        'captures':
+          '1': 'name': 'keyword.tasks.marker.cancelled'
+          '2': 'name': 'tasks.text.cancelled'
+      }
+      {
+        'match': '.'
+        'name': 'tasks.text.cancelled'
+      }
+    ]
+  }
+  # {
+  #   'begin': '^(?:[\\s]+?)(?=☐|✔|✘)'
+  #   'captures': '1': 'name': ''
+  #   'end': '$'
+  #   'patterns': [
+  #
+  #     {
+  #       'match': '@([\\w]+) ?(?:\\((.*?)\\))?'
+  #       'name':'keyword.tasks.attribute.$1'
+  #     }
+  #     # {
+  #     #   'match': '(?!✔.*)@([\\w]+) ?(?:\\((.*?)\\))?'
+  #     #   'captures':
+  #     #     '1': 'name':'keyword.tasks.attribute.done.$1'
+  #     # }
+  #
+  #     {
+  #       'match': '(✔)(.*)(?=@done)'
+  #       'captures':
+  #         '1': 'name': 'keyword.tasks.marker.done'
+  #         '2': 'name': 'tasks.text.done'
+  #     }
+  #
+  #     {
+  #       'match': '(✘)(.*)(?=@cancelled)'
+  #       'captures':
+  #         '1': 'name': 'keyword.tasks.marker.cancelled'
+  #         '2': 'name': 'tasks.text.cancelled'
+  #     }
+  #
+  #     {
+  #       'match': '(☐)'
+  #       'captures':
+  #         '1': 'name': 'keyword.tasks.marker'
+  #         '2': 'name': 'tasks.text'
+  #     }
+  #
+  #     {
+  #       'match': '\\w'
+  #       'name': 'tasks.text'
+  #     }
+  #   ]
+  # }
 ]

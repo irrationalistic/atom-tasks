@@ -14,8 +14,8 @@ atom-text-editor::shadow, atom-text-editor {
     &.done,
     &.cancelled {
       &.marker { color: @text-color-success; }
-      ~.text { color: @text-color-subtle; }
-      ~.attribute { color: darken(@text-color-info, 20%); }
+      &.text { color: @text-color-subtle; }
+      &.attribute { color: darken(@text-color-info, 20%); }
     }
 
     &.cancelled.marker { color: @text-color-error; }
