@@ -181,7 +181,7 @@ module.exports =
             line = line.replace marker, cancelledMarker
             date = moment().format(atom.config.get('tasks.dateFormat'))
             line += " @cancelled(#{date})"
-            line += " @project(#{lastProject})" if lastProject
+            line += " @project(#{lastProject.trim()})" if lastProject
           else
             line = line.replace cancelledMarker, marker
             line = line.replace cancelledRegex, ''
