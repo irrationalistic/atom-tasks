@@ -44,6 +44,16 @@ describe 'Tasks', ->
 
       expect(indent).toBe atom.config.get('editor.tabLength')
 
+    it 'adds a new task above', ->
+      Tasks.newTask(-1)
+      editor.insertText 'Todo Item from tests'
+      newText = find('.marker')[0].parentNode.innerText
+      indent = newText.match(/^(\s+)/)?[0].length
+
+      expect(find('.marker').length).toBe 3
+
+      expect(indent).toBe atom.config.get('editor.tabLength')
+
   describe 'should be able to complete tasks', ->
     it 'completes a task', ->
       editor.setCursorBufferPosition [1,0]
