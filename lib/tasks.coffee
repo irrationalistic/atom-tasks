@@ -79,6 +79,7 @@ module.exports =
 
     atom.commands.add 'atom-text-editor',
       "tasks:add": => @newTask()
+      "tasks:addAbove": => @newTask(-1)
       "tasks:complete": => @completeTask()
       "tasks:archive": => @tasksArchive()
       "tasks:updateTimestamps": => @tasksUpdateTimestamp()
@@ -125,7 +126,7 @@ module.exports =
 
   serialize: ->
 
-  newTask: ->
+  newTask: (direction = 1)->
     editor = atom.workspace.getActiveTextEditor()
     return if not editor
 
@@ -145,7 +146,9 @@ module.exports =
       if prev_line.match /(.*):$/
         indentLevel = null
       indentLevel = if not indentLevel then targTab else ''
-      editor.insertNewlineBelow()
+
+      editor.insertNewlineBelow() if direction is 1
+      editor.insertNewlineAbove() if direction is -1
       # should have a minimum of one tab in
       editor.insertText indentLevel + atom.config.get('tasks.baseMarker') + ' '
 
