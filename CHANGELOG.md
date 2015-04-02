@@ -1,3 +1,6 @@
+## 1.4.1 - Readme update
+* Updated hotkeys in readme
+
 ## 1.4.0 - Tags for status
 * Now uses line tags to dictate state (improves support for taskpaper)
 * Project whitespace fix (thanks @JohannWeging)
