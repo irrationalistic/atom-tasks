@@ -1,3 +1,8 @@
+## 1.4.0 - Tags for status
+* Now uses line tags to dictate state (improves support for taskpaper)
+* Project whitespace fix (thanks @JohannWeging)
+* Added shortcut for adding a tag above
+
 ## 1.3.0 - Wrapping support
 * Updated grammar to support multi-line items
 
