@@ -1,8 +1,11 @@
+
 moment = require 'moment'
 CSON = require atom.config.resourcePath + "/node_modules/season/lib/cson.js"
 TaskGrammar = require './task-grammar'
 Grammar = require atom.config.resourcePath +
   "/node_modules/first-mate/lib/grammar.js"
+
+TaskParser = require './parser'
 
 lpad = (value, padding) ->
   zeroes = "0"
@@ -62,6 +65,10 @@ module.exports =
       default: '✘'
 
   activate: (state) ->
+
+    # testing parser stuff
+    atom.workspace.observeTextEditors (editor)->
+      console.log editor
 
 
     marker = atom.config.get('tasks.baseMarker')
