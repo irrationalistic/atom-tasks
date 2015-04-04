@@ -5,6 +5,7 @@ TaskGrammar = require './task-grammar'
 Grammar = require atom.config.resourcePath +
   "/node_modules/first-mate/lib/grammar.js"
 
+# parserTest = require './parserTest'
 TaskParser = require './parser'
 
 lpad = (value, padding) ->
@@ -68,7 +69,11 @@ module.exports =
 
     # testing parser stuff
     atom.workspace.observeTextEditors (editor)->
-      console.log editor
+      console.log editor.__tasks
+      editor.observeGrammar (grammar)->
+        if grammar.name is 'Tasks' and not editor.__tasks
+          editor.__tasks = TaskParser.parse editor
+          console.log editor
 
 
     marker = atom.config.get('tasks.baseMarker')

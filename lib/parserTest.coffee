@@ -75,27 +75,49 @@
     - Archiving tasks with certain tags (done, cancelled)
 ###
 
-class Node
-  constructor: (@line, @indentation, @parent = null)->
-    @items = []
 
-  addItem: (item)->
-    @items.push item
-    item.parent = @
+###
 
-tl = atom.config.get 'editor.tabLength'
-getIndentationForLine = (line)->
-  indent = /(\s)*/.exec(line)
-  return 0 if !indent or !indent[0]
-  indent[0].length / tl
+IMPORTANT CONSIDERATIONS:
+
+- Speed optimization for large files
+- How are buffers handled / watched
+- Managing data that doesn't necessarily sync directly.
+    For instance, if I add a tag, it will also need to put
+    it into the output, which would probably be the end. But
+    what if I change the value or name of a tag? It may need
+    to keep track of the buffer points it came from...
+    Maybe it creates a special template string that uses
+    custom id fields to connect parts of the string to the
+    tags stored in the array?
+- Writing changes back should also be optimized. When
+    changing a single item, that's the only modifications
+    that should be written. When adding a new task, the contents
+    should move around to fit, but it will need to carefully watch
+    the buffer for any changes so that it can remain up-to-date
+    and not need to re-parse every change and action.
+
+
+IMPORTANT DOCUMENTATION:
+  - https://atom.io/docs/api/v0.189.0/TextBuffer#instance-setTextViaDiff
+  - https://atom.io/docs/api/v0.189.0/TextBuffer#instance-markRange
+  - https://atom.io/docs/api/v0.189.0/TextEditor#instance-markBufferRange
+  - https://atom.io/docs/api/v0.189.0/TextBuffer#instance-markPosition
+  - https://atom.io/docs/api/v0.189.0/TextBuffer#instance-findMarkers
+  - https://atom.io/docs/api/v0.189.0/Marker
+  - https://atom.io/docs/api/v0.189.0/TextBuffer#instance-setTextInRange
+
+###
+
 
 
 
 testContent = """
 ☐ Chrome notifications
 Roadmap v2:
-  ☐ Show player (and teller, somewhere, avatars) @test(value)
+  ☐ Show player @tag1 and @test(value)
   ☐ Click to toggle enter-send vs cmd+enter -send
+  plain text
   ☐ Can archive convos
 Roadmap v3:
   ☐ Multi-user stories
@@ -132,57 +154,18 @@ as little memory and callstack as possible.
 
 ###
 
-parseContent = (lines, node, indentation = 0)->
-  parentCursor = node
-  lastCursor = node
-
-  for line, i in lines
-    # need to check if the indentation of the currently reading line
-    # is one greater than the parent's indentation.
-
-    lineIndent = getIndentationForLine line
-    tempNode = new Node line, lineIndent
-
-
-    if lineIndent > parentCursor.indentation + 1
-      # parseContent lines.slice(i), lastCursor
-      parentCursor = lastCursor
-    if lineIndent <= parentCursor.indentation
-      parentCursor = parentCursor.parent
-    #	return
-    # console.log parentCursor, lineIndent, parentCursor.indentation
-    if lineIndent is parentCursor.indentation + 1
-      # add as child
-      parentCursor.addItem tempNode
-      # console.log "Adding #{tempNode.line} to #{parentCursor.line}"
-    lastCursor = tempNode
-
-
-parser = (content)->
-  # given some text in the proper format, let's parse it
-  rootNode = new Node 'rootNode', -1
-
-  lines = content.split '\n'
-  parseContent lines, rootNode
-
-  rootNode
-
-
-module.exports = parser
-
+{parse} = require './parser'
 
 
 
 setTimeout ->
   console.time 'parsingLight'
-  results = parser testContent
+  results = parse testContent
   console.timeEnd 'parsingLight'
-
   console.log results
 
-  console.time 'parsingHeavy'
-  results = parser complexContent
-  console.timeEnd 'parsingHeavy'
-
-  console.log results
+  # console.time 'parsingHeavy'
+  # results = parser complexContent
+  # console.timeEnd 'parsingHeavy'
+  # console.log results
 , 5000
