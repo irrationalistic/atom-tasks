@@ -9,6 +9,7 @@
     "atom": ">0.50.0"
   },
   "dependencies": {
-    "moment": "~2.6.0"
+    "moment": "~2.6.0",
+    "underscore": "^1.8.3"
   }
 }

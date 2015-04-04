@@ -106,6 +106,7 @@ IMPORTANT DOCUMENTATION:
   - https://atom.io/docs/api/v0.189.0/TextBuffer#instance-findMarkers
   - https://atom.io/docs/api/v0.189.0/Marker
   - https://atom.io/docs/api/v0.189.0/TextBuffer#instance-setTextInRange
+  - https://atom.io/docs/api/v0.189.0/TextEditor#instance-indentationForBufferRow
 
 ###
 

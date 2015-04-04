@@ -166,25 +166,32 @@ module.exports =
 
   completeTask: ->
     editor = atom.workspace.getActiveTextEditor()
-    return if not editor
+    return if not editor or not editor.__tasks
 
-    editor.transact ->
-      {lines, ranges} = mapSelectedItems editor,
-        (line, lastProject, bufferStart, bufferEnd)->
-          if not doneRegex.test line
-            line = line.replace marker, completeMarker
-            date = moment().format(atom.config.get('tasks.dateFormat'))
-            line += " @done(#{date})"
-            line += " @project(#{lastProject.trim()})" if lastProject
-          else
-            line = line.replace completeMarker, marker
-            line = line.replace doneRegex, ''
-            line = line.replace projectRegex, ''
-            line = line.trimRight()
+    taskRoot = editor.__tasks
 
-          editor.setTextInBufferRange [bufferStart,bufferEnd], line
-      editor.setSelectedBufferRanges ranges
+    range = editor.getSelectedBufferRanges()
 
+    console.log taskRoot.findElementsByRange range
+
+
+    # editor.transact ->
+    #   {lines, ranges} = mapSelectedItems editor,
+    #     (line, lastProject, bufferStart, bufferEnd)->
+    #       if not doneRegex.test line
+    #         line = line.replace marker, completeMarker
+    #         date = moment().format(atom.config.get('tasks.dateFormat'))
+    #         line += " @done(#{date})"
+    #         line += " @project(#{lastProject.trim()})" if lastProject
+    #       else
+    #         line = line.replace completeMarker, marker
+    #         line = line.replace doneRegex, ''
+    #         line = line.replace projectRegex, ''
+    #         line = line.trimRight()
+    #
+    #       editor.setTextInBufferRange [bufferStart,bufferEnd], line
+    #   editor.setSelectedBufferRanges ranges
+    #
   cancelTask: ->
     editor = atom.workspace.getActiveTextEditor()
     return if not editor

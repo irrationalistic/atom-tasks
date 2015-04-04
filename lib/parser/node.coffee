@@ -1,3 +1,4 @@
+_ = require 'underscore'
 Tag = require './tag'
 
 PROJECT_RX = /(.*):$/g
@@ -28,7 +29,8 @@ class Node
 
     # parse any tags out
     while match = ATTRIBUTE_RX.exec @line
-      @addTag match[3], match[5]
+      nTag = new Tag match[3], match[5]
+      @tags.push nTag
 
   addItem: (item)->
     item.parent = @
@@ -39,7 +41,37 @@ class Node
       @tasks.push item
 
   addTag: (tagName, tagValue)->
-    @tags.push new Tag tagName, tagValue
+    nTag = new Tag tagName, tagValue
+    @tags.push nTag
+    pos = @lineMarker.bufferMarker.range.start.copy()
+    pos.column = @editor.buffer.lineLengthForRow pos.row
+    # update the buffer test
+    @editor.buffer.insert pos, " #{nTag.toString()}"
+
+  getLineNumber: ()->
+    return -1 if not @lineMarker
+    @lineMarker.bufferMarker.range.start.row
+
+  findElementsByRange: (range, rows = null)->
+    if not rows
+      rows = range.reduce ((t, i)-> i.getRows()), []
+
+    # add to matches if this is such,
+    # but also check all child projects
+    # and tasks
+
+    # console.log @, @getLineNumber(), @getLineNumber() in rows
+    # console.log @projects.concat @tasks
+
+    _.chain(@projects.concat @tasks
+      .map (i)-> i.findElementsByRange range, rows
+      .concat [@ if @getLineNumber() in rows]
+    )
+      .flatten()
+      .compact()
+      .value()
+
+
 
 
 module.exports = Node
