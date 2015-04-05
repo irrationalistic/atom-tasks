@@ -1,54 +1,17 @@
-
 moment = require 'moment'
+_ = require 'underscore'
 CSON = require atom.config.resourcePath + "/node_modules/season/lib/cson.js"
 TaskGrammar = require './task-grammar'
 Grammar = require atom.config.resourcePath +
   "/node_modules/first-mate/lib/grammar.js"
 
-# parserTest = require './parserTest'
 TaskParser = require './parser'
 
-lpad = (value, padding) ->
-  zeroes = "0"
-  zeroes += "0" for i in [1..padding]
-  (zeroes + value).slice(padding * -1)
-
-mapSelectedItems = (editor, cb)->
-  ranges = editor.getSelectedBufferRanges()
-  coveredLines = []
-
-  ranges.map (range)->
-    coveredLines.push y for y in [range.start.row..range.end.row]
-
-  lastProject = undefined
-
-  coveredLines.map (row)->
-    sp = [row,0]
-    ep = [row,editor.lineTextForBufferRow(row).length]
-    text = editor.getTextInBufferRange [sp, ep]
-
-    for r in [row..0]
-      tsp = [r, 0]
-      tep = [r, editor.lineTextForBufferRow(r).length]
-      checkLine = editor.getTextInBufferRange [tsp, tep]
-      if checkLine.indexOf(':') is checkLine.length - 1
-        lastProject = checkLine.replace(':', '')
-        break
-
-    cb text, lastProject, sp, ep
-
-  {
-    lines: coveredLines
-    ranges: ranges
-  }
-
 marker = completeMarker = cancelledMarker = ''
-projectRegex = /@project[ ]?\((.*?)\)/
-doneRegex = /@done[ ]?(?:\((.*?)\))?/
-cancelledRegex = /@cancelled[ ]?(?:\((.*?)\))?/
+# projectRegex = /@project[ ]?\((.*?)\)/
+# doneRegex = /@done[ ]?(?:\((.*?)\))?/
+# cancelledRegex = /@cancelled[ ]?(?:\((.*?)\))?/
 
-
-# CORE MODULE
 module.exports =
 
   config:
@@ -56,24 +19,23 @@ module.exports =
       type: 'string'
       default: "YYYY-MM-DD HH:mm"
     baseMarker:
-      type: 'string'
-      default: '☐'
+      type: 'string', default: '☐'
     completeMarker:
-      type: 'string'
-      default: '✔'
+      type: 'string', default: '✔'
     cancelledMarker:
-      type: 'string'
-      default: '✘'
+      type: 'string', default: '✘'
 
   activate: (state) ->
 
     # testing parser stuff
     atom.workspace.observeTextEditors (editor)->
-      console.log editor.__tasks
       editor.observeGrammar (grammar)->
         if grammar.name is 'Tasks' and not editor.__tasks
           editor.__tasks = TaskParser.parse editor
-          console.log editor
+          editor.onDidChange (e)->
+            # when a change is made, try to
+            # reparse the changed lines
+            # console.log e
 
 
     marker = atom.config.get('tasks.baseMarker')
@@ -135,6 +97,7 @@ module.exports =
         editorView.setGrammar newG
 
   deactivate: ->
+    # TODO: Clear markers and __tasks
 
   serialize: ->
 
@@ -169,10 +132,14 @@ module.exports =
     return if not editor or not editor.__tasks
 
     taskRoot = editor.__tasks
-
     range = editor.getSelectedBufferRanges()
+    nodes = taskRoot.findNodesByRange range
 
-    console.log taskRoot.findElementsByRange range
+    editor.transact ->
+      _.where nodes, type: 'task'
+        .map (n)->n.complete()
+
+
 
 
     # editor.transact ->
