@@ -32,10 +32,14 @@ module.exports =
       editor.observeGrammar (grammar)->
         if grammar.name is 'Tasks' and not editor.__tasks
           editor.__tasks = TaskParser.parse editor
-          editor.onDidChange (e)->
+          editor.onDidStopChanging ()->
             # when a change is made, try to
             # reparse the changed lines
-            # console.log e
+            # console.log 'starting parse...'
+            # console.time 'parse'
+            # editor.__tasks = TaskParser.parse editor
+            # console.timeEnd 'parse'
+
 
 
     marker = atom.config.get('tasks.baseMarker')
@@ -161,24 +165,34 @@ module.exports =
     #
   cancelTask: ->
     editor = atom.workspace.getActiveTextEditor()
-    return if not editor
+    return if not editor or not editor.__tasks
+
+    taskRoot = editor.__tasks
+    range = editor.getSelectedBufferRanges()
+    nodes = taskRoot.findNodesByRange range
 
     editor.transact ->
-      {lines, ranges} = mapSelectedItems editor,
-        (line, lastProject, bufferStart, bufferEnd)->
-          if not cancelledRegex.test line
-            line = line.replace marker, cancelledMarker
-            date = moment().format(atom.config.get('tasks.dateFormat'))
-            line += " @cancelled(#{date})"
-            line += " @project(#{lastProject.trim()})" if lastProject
-          else
-            line = line.replace cancelledMarker, marker
-            line = line.replace cancelledRegex, ''
-            line = line.replace projectRegex, ''
-            line = line.trimRight()
-
-          editor.setTextInBufferRange [bufferStart,bufferEnd], line
-      editor.setSelectedBufferRanges ranges
+      _.where nodes, type: 'task'
+        .map (n)->n.cancel()
+    # editor = atom.workspace.getActiveTextEditor()
+    # return if not editor
+    #
+    # editor.transact ->
+    #   {lines, ranges} = mapSelectedItems editor,
+    #     (line, lastProject, bufferStart, bufferEnd)->
+    #       if not cancelledRegex.test line
+    #         line = line.replace marker, cancelledMarker
+    #         date = moment().format(atom.config.get('tasks.dateFormat'))
+    #         line += " @cancelled(#{date})"
+    #         line += " @project(#{lastProject.trim()})" if lastProject
+    #       else
+    #         line = line.replace cancelledMarker, marker
+    #         line = line.replace cancelledRegex, ''
+    #         line = line.replace projectRegex, ''
+    #         line = line.trimRight()
+    #
+    #       editor.setTextInBufferRange [bufferStart,bufferEnd], line
+    #   editor.setSelectedBufferRanges ranges
 
   tasksUpdateTimestamp: ->
     # Update timestamps to match the current setting (only for tags though)

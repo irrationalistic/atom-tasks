@@ -21,20 +21,31 @@ class Node
     @line = @raw.trim()
 
   parseLine: ()->
+    return if @line.length is 0
     # parse the line of this node
     @type = 'text'
     @type = 'project' if PROJECT_RX.test @line
     @type = 'task' if TASK_RX.test @line
+
+    if @type is 'project'
+      @line = @line.substring 0, @line.length - 1
 
     @marker.destroy() if @marker
     sPt = new Point @lineNum, 0
     ePt = new Point @lineNum, @editor.buffer.lineLengthForRow @lineNum
     @marker = @editor.buffer.markRange new Range sPt, ePt
     @marker.onDidChange (e)=>
-      # TODO: refactor this
-      @raw = @editor.buffer.getTextInRange @marker.getRange()
-      @line = @raw.trim()
-      @parseLine()
+    #   console.log 'Node Changing'
+    #   # TODO: refactor this
+    #   # @raw = @editor.buffer.getTextInRange @marker.getRange()
+    #   # @line = @raw.trim()
+    #   # @parseLine()
+      console.log e
+      # this could just re-parse all lines between
+      # the changed rows...
+      # This will be pretty complicated because if the change
+      # happens in between two tasks and it becomes a new
+      # project, the tasks below all have to be moved as well
 
     # parse any tags out
     if @tags
@@ -57,9 +68,9 @@ class Node
       @tasks.push item
 
   addTag: (tagName, tagValue)->
-    nTag = new Tag tagName, tagValue
+    nTag = new Tag @editor, tagName, tagValue
     @tags.push nTag
-    pos = @marker.bufferMarker.range.start.copy()
+    pos = @marker.range.start.copy()
     pos.column = @editor.buffer.lineLengthForRow pos.row
     # update the buffer test
     @editor.buffer.insert pos, " #{nTag.toString()}"
@@ -73,7 +84,7 @@ class Node
 
   getLineNumber: ()->
     return -1 if not @marker
-    @marker.bufferMarker.range.start.row
+    @marker.range.start.row
 
   findNodesByRange: (range, rows = null)->
     if not rows
@@ -103,6 +114,18 @@ class Node
         @removeTag 'project'
       else
         @addTag 'done', moment().format(atom.config.get('tasks.dateFormat'))
-        @addTag 'project', _.pluck(@getProjectParents(), 'line').join ' / '
+        proj = @getProjectParents().reverse()
+        @addTag 'project', _.pluck(proj, 'line').join ' / '
+
+  cancel: ()->
+    @editor.transact =>
+      if _.any(@tags, (i)->i.name is 'cancelled')
+        # already done, so remove
+        @removeTag 'cancelled'
+        @removeTag 'project'
+      else
+        @addTag 'cancelled', moment().format atom.config.get 'tasks.dateFormat'
+        proj = @getProjectParents().reverse()
+        @addTag 'project', _.pluck(proj, 'line').join ' / '
 
 module.exports = Node

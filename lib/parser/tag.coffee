@@ -18,10 +18,13 @@ class Tag
     "@#{@name}(#{@value})"
 
   remove: ()->
+    # TODO: on removing a tag, check to see
+    # if there is extraneous white-space on both
+    # sides. If so, remove one of the spaces
     @editor.buffer.delete @marker.getRange()
     @marker.destroy()
 
   destroy: ()->
-    @marker.destroy()
+    @marker.destroy() if @marker
 
 module.exports = Tag

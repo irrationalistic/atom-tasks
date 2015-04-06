@@ -24,6 +24,7 @@ parseContent = (lines, node, editor, indentation = 0)->
     if lineIndent > parentCursor.indentation + 1
       parentCursor = lastCursor
     if lineIndent <= parentCursor.indentation
+      # TODO: Fix for more than one indentation level drop
       parentCursor = parentCursor.parent
     if lineIndent is parentCursor.indentation + 1
       parentCursor.addItem tempNode
