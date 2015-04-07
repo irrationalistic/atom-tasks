@@ -8,17 +8,10 @@
 'patterns': [
 
   {
-    'match': 'Archive:$'
-    'name': 'control.tasks.header.archive'
-  }
-
-  {
     'match': '(.*):$'
-    'name': 'control.tasks.header'
+    'name': 'control.tasks.header.$1'
   }
-
-
-
+  
   {
     'begin': '^(?:[\\s]+)(?=.*@done)'
     'end': '$'

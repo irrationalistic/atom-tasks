@@ -31,7 +31,7 @@ module.exports =
     atom.workspace.observeTextEditors (editor)->
       editor.observeGrammar (grammar)->
         if grammar.name is 'Tasks' and not editor.__tasks
-          editor.__tasks = TaskParser.parse editor
+          # editor.__tasks = TaskParser.parse editor
           editor.onDidStopChanging ()->
             # when a change is made, try to
             # reparse the changed lines
