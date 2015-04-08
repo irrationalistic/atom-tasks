@@ -13,7 +13,7 @@
   }
 
   {
-    'begin': '^([\\s]+)(.)(?=.*@done)'
+    'begin': '^([\\s]+)([☐✔✘])(?=.*@done)'
     'end': '$'
     'name': 'tasks.text.done'
     'captures': '2': 'name': 'keyword.tasks.marker'
@@ -23,7 +23,7 @@
   }
 
   {
-    'begin': '^([\\s]+)(.)(?=.*@cancelled)'
+    'begin': '^([\\s]+)([☐✔✘])(?=.*@cancelled)'
     'end': '$'
     'name': 'tasks.text.cancelled'
     'captures': '2': 'name': 'keyword.tasks.marker'
@@ -31,9 +31,9 @@
       {'include': '#attribute'}
     ]
   }
-  
+
   {
-    'begin': '^([\\s]+)(.)'
+    'begin': '^([\\s]+)([☐✔✘])'
     'end': '$'
     'name': 'tasks.text'
     'captures': '2': 'name': 'keyword.tasks.marker'

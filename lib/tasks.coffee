@@ -133,15 +133,37 @@ module.exports =
 
   completeTask: ->
     editor = atom.workspace.getActiveTextEditor()
-    return if not editor or not editor.__tasks
+    return if not editor
 
-    taskRoot = editor.__tasks
-    range = editor.getSelectedBufferRanges()
-    nodes = taskRoot.findNodesByRange range
+    selection = editor.getSelectedBufferRanges()
+    console.log selection
 
-    editor.transact ->
-      _.where nodes, type: 'task'
-        .map (n)->n.complete()
+    # quick helper
+    removeTag = (tagName)->
+      # we need to know what part of the
+      # line to delete. This will need
+      # to use some regex probably and
+      # make the proper call to the delete method.
+
+    for range in selection
+      for row in range.getRows()
+        screenLine = editor.displayBuffer.screenLines[row]
+        console.log row, screenLine.text, screenLine
+
+        # see if this is already completed
+        token = _.find screenLine.tokens, (i)->
+          'tasks.attribute.done' in i.scopes
+
+        if token
+          console.log screenLine.bufferColumnForToken token
+
+    # taskRoot = editor.__tasks
+    # range = editor.getSelectedBufferRanges()
+    # nodes = taskRoot.findNodesByRange range
+    #
+    # editor.transact ->
+    #   _.where nodes, type: 'task'
+    #     .map (n)->n.complete()
 
 
 
