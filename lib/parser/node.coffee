@@ -33,7 +33,12 @@ class Node
     @marker.destroy() if @marker
     sPt = new Point @lineNum, 0
     ePt = new Point @lineNum, @editor.buffer.lineLengthForRow @lineNum
-    @marker = @editor.buffer.markRange new Range sPt, ePt
+    @marker = @editor.buffer.markRange new Range(sPt, ePt),
+      invalidate: 'touch'
+    @editor.decorateMarker @marker,
+      type: 'highlight'
+      class: 'task-node'
+    ###
     @marker.onDidChange (e)=>
     #   console.log 'Node Changing'
     #   # TODO: refactor this
@@ -46,7 +51,7 @@ class Node
       # This will be pretty complicated because if the change
       # happens in between two tasks and it becomes a new
       # project, the tasks below all have to be moved as well
-
+    ###
     # parse any tags out
     if @tags
       @tags.map (i)->i.destroy()
@@ -73,9 +78,10 @@ class Node
     pos = @marker.range.start.copy()
     pos.column = @editor.buffer.lineLengthForRow pos.row
     # update the buffer test
-    @editor.buffer.insert pos, " #{nTag.toString()}"
+    nTag.markRange @editor.buffer.insert pos, " #{nTag.toString()}"
 
   removeTag: (tagName)->
+    console.log @tags
     @tags = @tags.filter (i)->
       if i.name is tagName
         i.remove()

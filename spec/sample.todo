@@ -1,3 +1,4 @@
 My Project:
   ☐ A sample task @tag1 and something else @tag2
-  ☐ A second task
+  ☐ A second task @tag1 things @done(testing)
+  ☐ A cancelled task @cancelled(testing)

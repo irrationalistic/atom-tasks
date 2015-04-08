@@ -6,6 +6,9 @@ class Tag
   markRange: (range)->
     @marker.destroy() if @marker
     @marker = @editor.buffer.markRange range
+    @editor.decorateMarker @marker,
+      type: 'highlight'
+      class: 'task-tag'
 
   update: ()->
     txt = @editor.buffer.getTextInRange @marker.getRange()

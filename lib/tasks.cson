@@ -11,67 +11,42 @@
     'match': '(.*):$'
     'name': 'control.tasks.header.$1'
   }
+
+  {
+    'begin': '^([\\s]+)(.)(?=.*@done)'
+    'end': '$'
+    'name': 'tasks.text.done'
+    'captures': '2': 'name': 'keyword.tasks.marker'
+    'patterns': [
+      {'include': '#attribute'}
+    ]
+  }
+
+  {
+    'begin': '^([\\s]+)(.)(?=.*@cancelled)'
+    'end': '$'
+    'name': 'tasks.text.cancelled'
+    'captures': '2': 'name': 'keyword.tasks.marker'
+    'patterns': [
+      {'include': '#attribute'}
+    ]
+  }
   
   {
-    'begin': '^(?:[\\s]+)(?=.*@done)'
+    'begin': '^([\\s]+)(.)'
     'end': '$'
+    'name': 'tasks.text'
+    'captures': '2': 'name': 'keyword.tasks.marker'
     'patterns': [
-      {
-        'match': '@([\\w]+) ?(?:\\((.*?)\\))?'
-        'name':'keyword.tasks.attribute.$1.done'
-      }
-      {
-        'match': '(✔)'
-        'captures':
-          '1': 'name': 'keyword.tasks.marker.done'
-          '2': 'name': 'tasks.text.done'
-      }
-      {
-        'match': '.'
-        'name': 'tasks.text.done'
-      }
-    ]
-  }
-
-  {
-    'begin': '^(?:[\\s]+)(?=.*@cancelled)'
-    'end': '$'
-    'patterns': [
-      {
-        'match': '@([\\w]+) ?(?:\\((.*?)\\))?'
-        'name':'keyword.tasks.attribute.$1.cancelled'
-      }
-      {
-        'match': '(✘)'
-        'captures':
-          '1': 'name': 'keyword.tasks.marker.cancelled'
-          '2': 'name': 'tasks.text.cancelled'
-      }
-      {
-        'match': '.'
-        'name': 'tasks.text.cancelled'
-      }
-    ]
-  }
-
-  {
-    'begin': '^(?:[\\s]+?)(?=☐)'
-    'end': '$'
-    'patterns': [
-      {
-        'match': '@([\\w]+) ?(?:\\((.*?)\\))?'
-        'name':'keyword.tasks.attribute.$1'
-      }
-      {
-        'match': '(☐)'
-        'captures':
-          '1': 'name': 'keyword.tasks.marker'
-          '2': 'name': 'tasks.text'
-      }
-      {
-        'match': '.'
-        'name': 'tasks.text'
-      }
+      {'include': '#attribute'}
     ]
   }
 ]
+
+'repository':
+  'attribute':
+    'match': '@([\\w]+)(?:\\((.*?)\\))?'
+    'name': 'tasks.attribute.$1'
+    'captures':
+      '1': 'name': 'tasks.attribute-name'
+      '2': 'name': 'tasks.attribute-value'
