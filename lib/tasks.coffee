@@ -6,6 +6,8 @@ Grammar = require atom.config.resourcePath +
   "/node_modules/first-mate/lib/grammar.js"
 
 TaskParser = require './parser'
+{Point, Range} = require 'atom'
+tasks = require './tasksUtilities'
 
 marker = completeMarker = cancelledMarker = ''
 # projectRegex = /@project[ ]?\((.*?)\)/
@@ -27,21 +29,6 @@ module.exports =
 
   activate: (state) ->
 
-    # testing parser stuff
-    atom.workspace.observeTextEditors (editor)->
-      editor.observeGrammar (grammar)->
-        if grammar.name is 'Tasks' and not editor.__tasks
-          # editor.__tasks = TaskParser.parse editor
-          editor.onDidStopChanging ()->
-            # when a change is made, try to
-            # reparse the changed lines
-            # console.log 'starting parse...'
-            # console.time 'parse'
-            # editor.__tasks = TaskParser.parse editor
-            # console.timeEnd 'parse'
-
-
-
     marker = atom.config.get('tasks.baseMarker')
     completeMarker = atom.config.get('tasks.completeMarker')
     cancelledMarker = atom.config.get('tasks.cancelledMarker')
@@ -62,6 +49,7 @@ module.exports =
       "tasks:archive": => @tasksArchive()
       "tasks:updateTimestamps": => @tasksUpdateTimestamp()
       "tasks:cancel": => @cancelTask()
+      "tasks:convertToTask": => @convertToTask()
 
   updateGrammar: ->
     clean = (str)->
@@ -110,151 +98,176 @@ module.exports =
     return if not editor
 
     editor.transact ->
-      current_pos = editor.getCursorBufferPosition()
-      prev_line = editor.lineTextForBufferRow(current_pos.row)
-      startLine = current_pos.row
+      pos = editor.getCursorBufferPosition()
 
-      # Match the indentation of the previous line
-      # unless that line is a project definition, in which case,
-      # increase the indent one level
-      # while prev_line.match(/^(\s*)$/)
-      #   prev_line = editor.lineForBufferRow --startLine
 
-      indentLevel = prev_line.match(/^(\s+)/)?[0]
-      targTab = Array(atom.config.get('editor.tabLength') + 1).join(' ')
-      if prev_line.match /(.*):$/
-        indentLevel = null
-      indentLevel = if not indentLevel then targTab else ''
+      indentation = 0
+
+      if direction is -1
+        line = editor.displayBuffer.screenLines[pos.row - 1]
+      else
+        line = editor.displayBuffer.screenLines[pos.row]
+        if tasks.getToken line.tokens, 'tasks.header'
+          # is a project
+          indentation++
+
+
+      # ok, got the indentation, let's make the line
+      finalIndent = editor.buildIndentString indentation
 
       editor.insertNewlineBelow() if direction is 1
       editor.insertNewlineAbove() if direction is -1
-      # should have a minimum of one tab in
-      editor.insertText indentLevel + atom.config.get('tasks.baseMarker') + ' '
+      editor.insertText "#{finalIndent}#{marker} "
 
   completeTask: ->
     editor = atom.workspace.getActiveTextEditor()
     return if not editor
 
     selection = editor.getSelectedBufferRanges()
-    console.log selection
-
-    # quick helper
-    removeTag = (tagName)->
-      # we need to know what part of the
-      # line to delete. This will need
-      # to use some regex probably and
-      # make the proper call to the delete method.
-
-    for range in selection
-      for row in range.getRows()
-        screenLine = editor.displayBuffer.screenLines[row]
-        console.log row, screenLine.text, screenLine
-
-        # see if this is already completed
-        token = _.find screenLine.tokens, (i)->
-          'tasks.attribute.done' in i.scopes
-
-        if token
-          console.log screenLine.bufferColumnForToken token
-
-    # taskRoot = editor.__tasks
-    # range = editor.getSelectedBufferRanges()
-    # nodes = taskRoot.findNodesByRange range
-    #
-    # editor.transact ->
-    #   _.where nodes, type: 'task'
-    #     .map (n)->n.complete()
-
-
-
-
-    # editor.transact ->
-    #   {lines, ranges} = mapSelectedItems editor,
-    #     (line, lastProject, bufferStart, bufferEnd)->
-    #       if not doneRegex.test line
-    #         line = line.replace marker, completeMarker
-    #         date = moment().format(atom.config.get('tasks.dateFormat'))
-    #         line += " @done(#{date})"
-    #         line += " @project(#{lastProject.trim()})" if lastProject
-    #       else
-    #         line = line.replace completeMarker, marker
-    #         line = line.replace doneRegex, ''
-    #         line = line.replace projectRegex, ''
-    #         line = line.trimRight()
-    #
-    #       editor.setTextInBufferRange [bufferStart,bufferEnd], line
-    #   editor.setSelectedBufferRanges ranges
-    #
-  cancelTask: ->
-    editor = atom.workspace.getActiveTextEditor()
-    return if not editor or not editor.__tasks
-
-    taskRoot = editor.__tasks
-    range = editor.getSelectedBufferRanges()
-    nodes = taskRoot.findNodesByRange range
 
     editor.transact ->
-      _.where nodes, type: 'task'
-        .map (n)->n.cancel()
-    # editor = atom.workspace.getActiveTextEditor()
-    # return if not editor
-    #
-    # editor.transact ->
-    #   {lines, ranges} = mapSelectedItems editor,
-    #     (line, lastProject, bufferStart, bufferEnd)->
-    #       if not cancelledRegex.test line
-    #         line = line.replace marker, cancelledMarker
-    #         date = moment().format(atom.config.get('tasks.dateFormat'))
-    #         line += " @cancelled(#{date})"
-    #         line += " @project(#{lastProject.trim()})" if lastProject
-    #       else
-    #         line = line.replace cancelledMarker, marker
-    #         line = line.replace cancelledRegex, ''
-    #         line = line.replace projectRegex, ''
-    #         line = line.trimRight()
-    #
-    #       editor.setTextInBufferRange [bufferStart,bufferEnd], line
-    #   editor.setSelectedBufferRanges ranges
+      tasks.getAllSelectionRows(selection).map (row)->
+        screenLine = editor.displayBuffer.screenLines[row]
+
+        markerToken = tasks.getToken screenLine.tokens, 'tasks.marker'
+        doneToken = tasks.getToken screenLine.tokens, 'tasks.attribute.done'
+
+        if markerToken and not doneToken
+          projects = tasks.getProjects editor, row
+            .map (p)-> tasks.parseProjectName p
+            .reverse()
+
+          tasks.addTag editor, row, 'done', tasks.getFormattedDate()
+          tasks.addTag editor, row, 'project', projects.join ' / '
+          tasks.setMarker editor, row, completeMarker
+        else if markerToken and doneToken
+          tasks.removeTag editor, row, 'done'
+          tasks.removeTag editor, row, 'project'
+          tasks.setMarker editor, row, marker
+
+  cancelTask: ->
+    editor = atom.workspace.getActiveTextEditor()
+    return if not editor
+
+    selection = editor.getSelectedBufferRanges()
+
+    editor.transact ->
+      tasks.getAllSelectionRows(selection).map (row)->
+        screenLine = editor.displayBuffer.screenLines[row]
+
+        markerToken = tasks.getToken screenLine.tokens, 'tasks.marker'
+        cancelledToken = tasks.getToken screenLine.tokens,
+          'tasks.attribute.cancelled'
+
+        if markerToken and not cancelledToken
+          projects = tasks.getProjects editor, row
+            .map (p)-> tasks.parseProjectName p
+            .reverse()
+
+          tasks.addTag editor, row, 'cancelled', tasks.getFormattedDate()
+          tasks.addTag editor, row, 'project', projects.join ' / '
+          tasks.setMarker editor, row, cancelledMarker
+        else if markerToken and cancelledToken
+          tasks.removeTag editor, row, 'cancelled'
+          tasks.removeTag editor, row, 'project'
+          tasks.setMarker editor, row, marker
 
   tasksUpdateTimestamp: ->
     # Update timestamps to match the current setting (only for tags though)
     editor = atom.workspace.getActiveTextEditor()
     return if not editor
 
+    selection = editor.getSelectedBufferRanges()
+
     editor.transact ->
-      nText = editor.getText().replace /@done\(([^\)]+)\)/igm, (matches...)->
-        date = moment(matches[1]).format(atom.config.get('tasks.dateFormat'))
-        "@done(#{date})"
-      editor.setText nText
+      tasks.getAllSelectionRows(selection).map (row)->
+        screenLine = editor.displayBuffer.screenLines[row]
+        tagsToUpdate = ['done', 'cancelled']
+        for tag in tagsToUpdate
+          curDate = tasks.getTag(editor, row, tag)?.tagValue.value
+          if curDate
+            tasks.updateTag editor, row, tag, tasks.getFormattedDate(curDate)
+
+  convertToTask: ->
+    editor = atom.workspace.getActiveTextEditor()
+    return if not editor
+
+    selection = editor.getSelectedBufferRanges()
+
+    editor.transact ->
+      tasks.getAllSelectionRows(selection).map (row)->
+        screenLine = editor.displayBuffer.screenLines[row]
+        markerToken = tasks.getToken screenLine.tokens, 'tasks.marker'
+        projectToken = tasks.getToken screenLine.tokens, 'tasks.header'
+        if not markerToken and not projectToken
+          tasks.setMarker editor, row, marker
 
   tasksArchive: ->
     editor = atom.workspace.getActiveTextEditor()
     return if not editor
 
     editor.transact ->
-      ranges = editor.getSelectedBufferRanges()
-      # move all completed tasks to the archive section
-      text = editor.getText()
-      trimmedText = text.trimRight()
-      removedText = text.substr trimmedText.length
-      text = trimmedText
-      raw = text.split('\n') #.filter (line)-> line isnt ''
-      completed = []
-      hasArchive = false
+      # given an entire document of tasks,
+      # this should find all the ones that
+      # have the done or cancelled tag.
+      # Group them in order and prepend to the
+      # existing archive list
 
-      original = raw.filter (line)->
-        hasArchive = true if line.indexOf('Archive:') > -1
-        found = doneRegex.test(line) or cancelledRegex.test(line)
-        tabs = Array(atom.config.get('editor.tabLength') + 1).join(' ')
-        completed.push line.replace(/^[ \t]+/, tabs) if found
-        not found
+      completedTasks = []
+      archiveProject = null
+      insertRow = -1
 
-      newText = original.join('\n') +
-        (if not hasArchive then "\n＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿\nArchive:\n" else '') +
-        '\n' +
-        completed
-          .filter (l)-> l isnt ''
-          .join('\n') + removedText
-      if newText isnt text
-        editor.setText newText
-        editor.setSelectedBufferRanges ranges
+      # 1. Find the archives section, if it exists
+
+      # Optimize by looping all at once
+      editor.displayBuffer.screenLines.every (i, ind)->
+        # if we already found the archive, no need
+        # to parse any more!
+        return false if archiveProject
+        hasDone = tasks.getToken i.tokens, 'tasks.done'
+        hasCancelled = tasks.getToken i.tokens, 'tasks.cancelled'
+        hasArchive = tasks.getToken i.tokens, 'tasks.header.archive'
+
+        el =
+          lineNumber: ind
+          line: i
+
+        archiveProject = el if hasArchive
+        completedTasks.push el if hasDone or hasCancelled
+        true
+
+      console.log completedTasks, archiveProject
+
+      # 2. I have a list of all completed tasks,
+      #     as well as where the archive exists, if it does
+
+      if not archiveProject
+        # no archive? create it!
+        archiveText = """
+
+        ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+        Archive:
+
+        """
+
+        # add to the end of the file
+        newRange = editor.buffer.append archiveText
+        insertRow = newRange.end.row
+      else
+        insertRow = archiveProject.lineNumber + 1
+
+      # 3. Archive insertion point is ready! Let's
+      #     start copying down the completed items.
+      completedTasks.reverse()
+
+      insertPoint = new Point insertRow, 0
+      indentation = editor.buildIndentString 1
+      completedTasks.forEach (i)->
+        editor.buffer.insert insertPoint,
+          indentation +
+          i.line.text.substring(i.line.firstNonWhitespaceIndex) + '\n'
+
+      # 4. Copy is completed, start deleting the
+      #     copied items
+      completedTasks.forEach (i)->
+        editor.buffer.deleteRow i.lineNumber

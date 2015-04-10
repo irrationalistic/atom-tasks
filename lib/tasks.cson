@@ -8,12 +8,13 @@
 'patterns': [
 
   {
-    'match': '(.*):$'
-    'name': 'control.tasks.header.$1'
+    'match': '^([\\s]*)(.*):$'
+    'name': 'control.tasks.header.${2:/downcase}'
+    'captures': '2': 'name': 'control.tasks.header-title'
   }
 
   {
-    'begin': '^([\\s]+)([☐✔✘])(?=.*@done)'
+    'begin': '^([\\s]*)([☐✔✘])(?=.*@done)'
     'end': '$'
     'name': 'tasks.text.done'
     'captures': '2': 'name': 'keyword.tasks.marker'
@@ -23,7 +24,7 @@
   }
 
   {
-    'begin': '^([\\s]+)([☐✔✘])(?=.*@cancelled)'
+    'begin': '^([\\s]*)([☐✔✘])(?=.*@cancelled)'
     'end': '$'
     'name': 'tasks.text.cancelled'
     'captures': '2': 'name': 'keyword.tasks.marker'
@@ -33,7 +34,7 @@
   }
 
   {
-    'begin': '^([\\s]+)([☐✔✘])'
+    'begin': '^([\\s]*)([☐✔✘])'
     'end': '$'
     'name': 'tasks.text'
     'captures': '2': 'name': 'keyword.tasks.marker'

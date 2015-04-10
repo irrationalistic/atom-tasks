@@ -1,8 +1,11 @@
+☐ testing
 My Tasks:
   ☐ Implement testing for tasks package
   ☐ Update styles
 v2:
-  ☐ Have package order pizza
+  ✘ Have package order pizza @cancelled(2015-04-09 20:43) @project(v2)
+  nested:
+    ☐ Another task
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
-  ✔ Create TODO package for atom @done(2014-06-13 08:05) @project(My Tasks)
+  ✔ Create TODO package for atom @done(2015-04-09 09:28) @project(Archive)

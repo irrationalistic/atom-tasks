@@ -1,0 +1,20 @@
+v2:
+  ☐ Cancelling a done task or vice-versa
+  ☐ Prevent duplicate adding task attribute
+  ☐ Better time printing when updating timestamp
+  ✔ Improve archiving tasks @done(2015-04-09 21:19) @project(v2)
+  ☐ Test with light syntax theme
+  ☐ Add method for updating all markers to new values
+  ☐ Don't add project tag to things without projects when completed
+  ☐ Fix awkward coloring in minimap
+  ☐ Archive should minimize spacing on remaining lines (no more than one line away from last real line)
+
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+Archive:
+  ✔ Updating marker helper @done(2015-04-09 16:39) @project(v2)
+  ✔ Converting to task from non-task @done(2015-04-09 09:46) @project(v2)
+  ✔ Converting a task should ignore project lines @done(2015-04-09 10:09) @project(v2)
+  ✔ Update timestamps should work on tasks without timestamp @done(2015-04-09 09:28) @project(v2)
+  ✔ Update timestamps should work on cancelled items @done(2015-04-09 09:28) @project(v2)
+  ✔ Update new task method @done(2015-04-09 15:52) @project(v2)
+  ✔ Support non-indented tasks @done(2015-04-09 15:53) @project(v2)
