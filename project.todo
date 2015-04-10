@@ -1,14 +1,18 @@
 v2:
-  ☐ Cancelling a done task or vice-versa
-  ☐ Prevent duplicate adding task attribute
-  ☐ Better time printing when updating timestamp
   ☐ Add method for updating all markers to new values
-  ☐ Don't add project tag to things without projects when completed
   ☐ Fix awkward coloring in minimap
   ☐ Archive should minimize spacing on remaining lines (no more than one line away from last real line)
+  ☐ Add pull-request to symbols view package
+  ☐ Clear out unnecessary files
+  ☐ Clean up tasks.coffee file
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+  ✔ Commands need spaces in name @done(2015-04-09 22:04) @project(v2)
+  ✘ Prevent duplicate adding task attribute @cancelled(2015-04-09 22:00) @project(v2)
+  ✘ Better time printing when updating timestamp @cancelled(2015-04-09 22:00) @project(v2)
+  ✔ Don't add project tag to things without projects when completed @done(2015-04-09 21:47) @project(v2)
+  ✔ Cancelling a done task or vice-versa @done(2015-04-09 21:45) @project(v2)
   ✔ Test with light syntax theme @done(2015-04-09 21:42) @project(v2)
   ✔ Support for wrapping @done(2015-04-09 21:40) @project(v2)
   ✔ Updating marker helper @done(2015-04-09 16:39) @project(v2)

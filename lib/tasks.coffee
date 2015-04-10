@@ -44,12 +44,12 @@ module.exports =
 
     atom.commands.add 'atom-text-editor',
       "tasks:add": => @newTask()
-      "tasks:addAbove": => @newTask(-1)
+      "tasks:add-above": => @newTask(-1)
       "tasks:complete": => @completeTask()
       "tasks:archive": => @tasksArchive()
-      "tasks:updateTimestamps": => @tasksUpdateTimestamp()
+      "tasks:update-timestamps": => @tasksUpdateTimestamp()
       "tasks:cancel": => @cancelTask()
-      "tasks:convertToTask": => @convertToTask()
+      "tasks:convert-to-task": => @convertToTask()
 
   updateGrammar: ->
     clean = (str)->
@@ -137,8 +137,12 @@ module.exports =
             .map (p)-> tasks.parseProjectName p
             .reverse()
 
+          tasks.removeTag editor, row, 'cancelled'
+          tasks.removeTag editor, row, 'project'
+
           tasks.addTag editor, row, 'done', tasks.getFormattedDate()
-          tasks.addTag editor, row, 'project', projects.join ' / '
+          if projects.length
+            tasks.addTag editor, row, 'project', projects.join ' / '
           tasks.setMarker editor, row, completeMarker
         else if markerToken and doneToken
           tasks.removeTag editor, row, 'done'
@@ -164,8 +168,12 @@ module.exports =
             .map (p)-> tasks.parseProjectName p
             .reverse()
 
+          tasks.removeTag editor, row, 'done'
+          tasks.removeTag editor, row, 'project'
+
           tasks.addTag editor, row, 'cancelled', tasks.getFormattedDate()
-          tasks.addTag editor, row, 'project', projects.join ' / '
+          if projects.length
+            tasks.addTag editor, row, 'project', projects.join ' / '
           tasks.setMarker editor, row, cancelledMarker
         else if markerToken and cancelledToken
           tasks.removeTag editor, row, 'cancelled'
