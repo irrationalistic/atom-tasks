@@ -1,13 +1,14 @@
 v2:
   ☐ Add method for updating all markers to new values
-  ☐ Fix awkward coloring in minimap
   ☐ Archive should minimize spacing on remaining lines (no more than one line away from last real line)
   ☐ Add pull-request to symbols view package
-  ☐ Clear out unnecessary files
+  ☐ Improving token matching to use package
   ☐ Clean up tasks.coffee file
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+  ✘ Fix awkward coloring in minimap @cancelled(2015-04-09 22:07) @project(v2)
+  ✔ Clear out unnecessary files @done(2015-04-09 22:06) @project(v2)
   ✔ Commands need spaces in name @done(2015-04-09 22:04) @project(v2)
   ✘ Prevent duplicate adding task attribute @cancelled(2015-04-09 22:00) @project(v2)
   ✘ Better time printing when updating timestamp @cancelled(2015-04-09 22:00) @project(v2)

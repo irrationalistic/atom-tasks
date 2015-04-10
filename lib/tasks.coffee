@@ -5,7 +5,6 @@ TaskGrammar = require './task-grammar'
 Grammar = require atom.config.resourcePath +
   "/node_modules/first-mate/lib/grammar.js"
 
-TaskParser = require './parser'
 {Point, Range} = require 'atom'
 tasks = require './tasksUtilities'
 
