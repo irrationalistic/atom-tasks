@@ -9,7 +9,7 @@ ATTRIBUTE_RX = /( ?)(@[ ]?(([\w]+)(\((.*?)\))?))/gi
 module.exports =
   getAllTags: (editor, lineNumber)->
     tags = []
-    lines = editor.displayBuffer.screenLines
+    lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
     while match = ATTRIBUTE_RX.exec checkLine.text
       sPt = new Point lineNumber, match.index
@@ -55,15 +55,16 @@ module.exports =
   removeTag: (editor, lineNumber, tagName)->
     # get the range of the tag,
     # then remove it
-    lines = editor.displayBuffer.screenLines
+    lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
     tags = @getAllTags editor, lineNumber
+    return if not tags
 
     match = _.find tags, (i)->i.tagName.value is tagName
     editor.buffer.delete match.range if match
 
   updateTag: (editor, lineNumber, tagName, newTagValue)->
-    lines = editor.displayBuffer.screenLines
+    lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
     tag = @getTag editor, lineNumber, tagName
     editor.buffer.setTextInRange tag.tagValue.range, newTagValue
@@ -76,13 +77,14 @@ module.exports =
       int.length is toFind.length
 
   getLinesByToken: (editor, toFind)->
-    editor.displayBuffer.screenLines.filter (i)=>
+    editor.displayBuffer.tokenizedBuffer.tokenizedLines.filter (i)=>
       @getToken i.tokens, toFind
 
   getProjects: (editor, lineNumber)->
-    lines = editor.displayBuffer.screenLines
+    lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
     projects = []
+    return projects if lineNumber is 0
     for row in [lineNumber-1..0]
       curLine = lines[row]
       if curLine.indentLevel < checkLine.indentLevel
@@ -105,7 +107,7 @@ module.exports =
     # given some line, change the marker
     # if it exists, or add one if it doesn't
 
-    lines = editor.displayBuffer.screenLines
+    lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
 
     marker = @getToken checkLine.tokens, 'tasks.marker'

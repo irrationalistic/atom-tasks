@@ -11,7 +11,7 @@
   'cmd-enter': 'tasks:add'
   'cmd-shift-enter': 'tasks:addAbove'
   'cmd-d': 'tasks:complete'
-  'cmd-a': 'tasks:archive'
+  'cmd-shift-a': 'tasks:archive'
   'ctrl-c': 'tasks:cancel'
 
 '.platform-win32 atom-workspace atom-text-editor:not(.mini)[data-grammar~="todo"], .platform-linux atom-workspace atom-text-editor:not(.mini)[data-grammar~="todo"]':

@@ -104,9 +104,9 @@ module.exports =
       indentation = 0
 
       if direction is -1
-        line = editor.displayBuffer.screenLines[pos.row - 1]
+        line = editor.displayBuffer.tokenizedBuffer.tokenizedLines[pos.row - 1]
       else
-        line = editor.displayBuffer.screenLines[pos.row]
+        line = editor.displayBuffer.tokenizedBuffer.tokenizedLines[pos.row]
         if tasks.getToken line.tokens, 'tasks.header'
           # is a project
           indentation++
@@ -127,7 +127,7 @@ module.exports =
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
-        screenLine = editor.displayBuffer.screenLines[row]
+        screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
 
         markerToken = tasks.getToken screenLine.tokens, 'tasks.marker'
         doneToken = tasks.getToken screenLine.tokens, 'tasks.attribute.done'
@@ -153,7 +153,7 @@ module.exports =
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
-        screenLine = editor.displayBuffer.screenLines[row]
+        screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
 
         markerToken = tasks.getToken screenLine.tokens, 'tasks.marker'
         cancelledToken = tasks.getToken screenLine.tokens,
@@ -181,7 +181,7 @@ module.exports =
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
-        screenLine = editor.displayBuffer.screenLines[row]
+        screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
         tagsToUpdate = ['done', 'cancelled']
         for tag in tagsToUpdate
           curDate = tasks.getTag(editor, row, tag)?.tagValue.value
@@ -196,7 +196,7 @@ module.exports =
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
-        screenLine = editor.displayBuffer.screenLines[row]
+        screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
         markerToken = tasks.getToken screenLine.tokens, 'tasks.marker'
         projectToken = tasks.getToken screenLine.tokens, 'tasks.header'
         if not markerToken and not projectToken
@@ -220,7 +220,7 @@ module.exports =
       # 1. Find the archives section, if it exists
 
       # Optimize by looping all at once
-      editor.displayBuffer.screenLines.every (i, ind)->
+      editor.displayBuffer.tokenizedBuffer.tokenizedLines.every (i, ind)->
         # if we already found the archive, no need
         # to parse any more!
         return false if archiveProject
@@ -235,8 +235,6 @@ module.exports =
         archiveProject = el if hasArchive
         completedTasks.push el if hasDone or hasCancelled
         true
-
-      console.log completedTasks, archiveProject
 
       # 2. I have a list of all completed tasks,
       #     as well as where the archive exists, if it does
