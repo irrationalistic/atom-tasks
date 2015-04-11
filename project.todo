@@ -1,5 +1,8 @@
 v2:
   ☐ Clean up tasks.coffee file
+  ☐ Add support for complex markers (like [ ] and [x])
+  ☐ Add package keywords
+  ☐ Export functionality as a service?
 
 v3:
   ☐ Add pull-request to symbols view package

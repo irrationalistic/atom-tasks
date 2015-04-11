@@ -7,6 +7,7 @@ Grammar = require atom.config.resourcePath +
 
 {Point, Range} = require 'atom'
 tasks = require './tasksUtilities'
+TaskStatusView = require './views/task-status-view'
 
 marker = completeMarker = cancelledMarker = ''
 
@@ -83,8 +84,15 @@ module.exports =
         # editorView.editor.reloadGrammar()
         editorView.setGrammar newG
 
+
+  consumeStatusBar: (statusBar) ->
+    @taskStatus = new TaskStatusView()
+    @taskStatus.initialize()
+    @statusBarTile = statusBar.addLeftTile(item: @taskStatus, priority: 100)
+
   deactivate: ->
-    # TODO: Clear markers and __tasks
+    @statusBarTile?.destroy()
+    @statusBarTile = null
 
   serialize: ->
 

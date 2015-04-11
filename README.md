@@ -1,6 +1,15 @@
-# Tasks Package
+## What's New in 2.0
 
-**IMPORTANT 2.0 CHANGE:** Archiving tasks hotkey has been set to `cmd-shift-a` instead of `cmd-a`!
+* Archiving tasks hotkey is now `cmd-shift-a`
+* Can convert non-task lines to tasks
+* Optimized performance in larger files
+* Improved behind-the-scenes code
+* Colors improved (also tested in light themes)
+* Works with line wrapping
+* Status bar shows progress
+* See more in the [changelog](https://github.com/irrationalistic/atom-tasks/blob/master/CHANGELOG.md)
+
+# Tasks Package
 
 ![example](https://raw.githubusercontent.com/irrationalistic/atom-tasks/master/images/tasks_example.png)
 
