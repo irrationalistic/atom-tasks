@@ -1,11 +1,17 @@
 v2:
-  ☐ Archive should minimize spacing on remaining lines (no more than one line away from last real line)
-  ☐ Add pull-request to symbols view package
   ☐ Improving token matching to use package
   ☐ Clean up tasks.coffee file
 
+v3:
+  ☐ Add pull-request to symbols view package
+  ☐ Add progress to status bar
+
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+  ✔ Update menu @done(2015-04-10 21:55) @project(v2)
+  ✔ Add benchmark @done(2015-04-10 21:52) @project(v2)
+  ✔ Fix up tests @done(2015-04-10 21:35) @project(v2)
+  ✔ Archive should minimize spacing on remaining lines (no more than one line away from last real line) @done(2015-04-10 12:21) @project(v2)
   ✔ Update readme @done(2015-04-10 11:37) @project(v2)
   ✘ Add method for updating all markers to new values @cancelled(2015-04-09 22:18) @project(v2)
   ✘ Fix awkward coloring in minimap @cancelled(2015-04-09 22:07) @project(v2)

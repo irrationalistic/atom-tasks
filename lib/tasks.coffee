@@ -27,7 +27,6 @@ module.exports =
       type: 'string', default: '✘'
 
   activate: (state) ->
-
     marker = atom.config.get('tasks.baseMarker')
     completeMarker = atom.config.get('tasks.completeMarker')
     cancelledMarker = atom.config.get('tasks.cancelledMarker')
@@ -250,10 +249,21 @@ module.exports =
         # no archive? create it!
         archiveText = """
 
+
         ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
         Archive:
 
         """
+
+        # Before adding the final archive section,
+        # we should clear out the empty lines at
+        # the end of the file.
+        for line, i in editor.buffer.lines by -1
+          if editor.buffer.isRowBlank i
+            # remove the line
+            editor.buffer.deleteRow i
+          else
+            break
 
         # add to the end of the file
         newRange = editor.buffer.append archiveText

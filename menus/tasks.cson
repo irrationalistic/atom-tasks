@@ -2,24 +2,32 @@
   'atom-text-editor[data-grammar~="todo"]': [
     {'type': 'separator'}
     {
-      'label': 'Add Task',
+      'label': 'Add Task Below',
       'command': 'tasks:add'
+    }
+    {
+      'label': 'Add Task Above',
+      'command': 'tasks:add-above'
     }
     {
       'label': 'Complete Task',
       'command': 'tasks:complete'
     }
     {
+      'label': 'Cancel Task',
+      'command': 'tasks:cancel'
+    }
+    {
       'label': 'Archive Tasks',
       'command': 'tasks:archive'
     }
     {
-      'label': 'Update Timestamp Format',
-      'command': 'tasks:updateTimestamps'
+      'label': 'Convert to Task',
+      'command': 'tasks:convert-to-task'
     }
     {
-      'label': 'Cancel Task',
-      'command': 'tasks:cancel'
+      'label': 'Update Timestamp Format',
+      'command': 'tasks:update-timestamps'
     }
     {'type': 'separator'}
   ]

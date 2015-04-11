@@ -15,6 +15,7 @@ module.exports =
       sPt = new Point lineNumber, match.index
       ePt = new Point lineNumber, match.index + match[0].length
 
+
       nameStart = new Point(
         lineNumber,
         match.index + match[0].indexOf match[4]
@@ -23,15 +24,15 @@ module.exports =
         lineNumber,
         match.index + match[0].indexOf(match[4]) + match[4].length
       )
-
-      valueStart = new Point(
-        lineNumber,
-        match.index + match[0].indexOf match[6]
-      )
-      valueEnd = new Point(
-        lineNumber,
-        match.index + match[0].indexOf(match[6]) + match[6].length
-      )
+      if match[6]
+        valueStart = new Point(
+          lineNumber,
+          match.index + match[0].indexOf match[6]
+        )
+        valueEnd = new Point(
+          lineNumber,
+          match.index + match[0].indexOf(match[6]) + match[6].length
+        )
 
       tags.push
         tagName:
