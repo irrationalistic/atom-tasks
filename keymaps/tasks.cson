@@ -13,6 +13,7 @@
   'cmd-d': 'tasks:complete'
   'cmd-a': 'tasks:archive'
   'ctrl-c': 'tasks:cancel'
+  'alt-t': 'tasks:clock'
 
 '.platform-win32 atom-workspace atom-text-editor:not(.mini)[data-grammar~="todo"], .platform-linux atom-workspace atom-text-editor:not(.mini)[data-grammar~="todo"]':
   'ctrl-enter': 'tasks:add'
@@ -20,3 +21,4 @@
   'ctrl-d': 'tasks:complete'
   'ctrl-shift-a': 'tasks:archive'
   'alt-c': 'tasks:cancel'
+  'alt-t': 'tasks:clock'
