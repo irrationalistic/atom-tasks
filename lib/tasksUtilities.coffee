@@ -1,12 +1,17 @@
 {Point, Range} = require 'atom'
 _ = require 'underscore'
 moment = require 'moment'
-# ScopeSelector = require atom.config.resourcePath +
-#   "/node_modules/first-mate/lib/scope-selector"
 
 ATTRIBUTE_RX = /( ?)(@[ ]?(([\w]+)(\((.*?)\))?))/gi
 
 module.exports =
+
+  markerSelector: 'keyword.tasks.marker'
+  doneSelector: 'tasks.text.done'
+  cancelledSelector: 'tasks.text.cancelled'
+  archiveSelector: 'control.tasks.header.archive'
+  headerSelector: 'control.tasks.header-title'
+
   getAllTags: (editor, lineNumber)->
     tags = []
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
@@ -70,12 +75,10 @@ module.exports =
     tag = @getTag editor, lineNumber, tagName
     editor.buffer.setTextInRange tag.tagValue.range, newTagValue
 
-  getToken: (tokens, toFind)->
-    toFind = toFind.split '.'
-    _.find tokens, (i)->
-      all = _.flatten i.scopes.map (e)-> e.split '.'
-      int = _.intersection toFind, all
-      int.length is toFind.length
+  getToken: (tokens, selector)->
+    for token in tokens
+      return token if selector in token.scopes
+    null
 
   getLinesByToken: (editor, toFind)->
     editor.displayBuffer.tokenizedBuffer.tokenizedLines.filter (i)=>
@@ -89,13 +92,13 @@ module.exports =
     for row in [lineNumber-1..0]
       curLine = lines[row]
       if curLine.indentLevel < checkLine.indentLevel
-        if @getToken curLine.tokens, 'tasks.header'
+        if @getToken curLine.tokens, @headerSelector
           projects.push curLine
         break if curLine.indentLevel is 0
     projects
 
   parseProjectName: (line)->
-    match = @getToken line.tokens, 'tasks.header-title'
+    match = @getToken line.tokens, @headerSelector
     match.value
 
   getAllSelectionRows: (selection)->
@@ -111,7 +114,7 @@ module.exports =
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
 
-    marker = @getToken checkLine.tokens, 'tasks.marker'
+    marker = @getToken checkLine.tokens, @markerSelector
 
     if marker
       # already a marker, swap it

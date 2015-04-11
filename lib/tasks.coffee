@@ -9,9 +9,6 @@ Grammar = require atom.config.resourcePath +
 tasks = require './tasksUtilities'
 
 marker = completeMarker = cancelledMarker = ''
-# projectRegex = /@project[ ]?\((.*?)\)/
-# doneRegex = /@done[ ]?(?:\((.*?)\))?/
-# cancelledRegex = /@cancelled[ ]?(?:\((.*?)\))?/
 
 module.exports =
 
@@ -105,7 +102,7 @@ module.exports =
         line = editor.displayBuffer.tokenizedBuffer.tokenizedLines[pos.row - 1]
       else
         line = editor.displayBuffer.tokenizedBuffer.tokenizedLines[pos.row]
-        if tasks.getToken line.tokens, 'tasks.header'
+        if tasks.getToken line.tokens, tasks.headerSelector
           # is a project
           indentation++
 
@@ -127,8 +124,8 @@ module.exports =
       tasks.getAllSelectionRows(selection).map (row)->
         screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
 
-        markerToken = tasks.getToken screenLine.tokens, 'tasks.marker'
-        doneToken = tasks.getToken screenLine.tokens, 'tasks.attribute.done'
+        markerToken = tasks.getToken screenLine.tokens, tasks.markerSelector
+        doneToken = tasks.getToken screenLine.tokens, tasks.doneSelector
 
         if markerToken and not doneToken
           projects = tasks.getProjects editor, row
@@ -157,9 +154,9 @@ module.exports =
       tasks.getAllSelectionRows(selection).map (row)->
         screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
 
-        markerToken = tasks.getToken screenLine.tokens, 'tasks.marker'
+        markerToken = tasks.getToken screenLine.tokens, tasks.markerSelector
         cancelledToken = tasks.getToken screenLine.tokens,
-          'tasks.attribute.cancelled'
+          tasks.cancelledSelector
 
         if markerToken and not cancelledToken
           projects = tasks.getProjects editor, row
@@ -203,8 +200,8 @@ module.exports =
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
         screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
-        markerToken = tasks.getToken screenLine.tokens, 'tasks.marker'
-        projectToken = tasks.getToken screenLine.tokens, 'tasks.header'
+        markerToken = tasks.getToken screenLine.tokens, tasks.markerSelector
+        projectToken = tasks.getToken screenLine.tokens, tasks.headerSelector
         if not markerToken and not projectToken
           tasks.setMarker editor, row, marker
 
@@ -219,6 +216,8 @@ module.exports =
       # Group them in order and prepend to the
       # existing archive list
 
+      # console.time 'archive'
+
       completedTasks = []
       archiveProject = null
       insertRow = -1
@@ -230,9 +229,9 @@ module.exports =
         # if we already found the archive, no need
         # to parse any more!
         return false if archiveProject
-        hasDone = tasks.getToken i.tokens, 'tasks.done'
-        hasCancelled = tasks.getToken i.tokens, 'tasks.cancelled'
-        hasArchive = tasks.getToken i.tokens, 'tasks.header.archive'
+        hasDone = tasks.getToken i.tokens, tasks.doneSelector
+        hasCancelled = tasks.getToken i.tokens, tasks.cancelledSelector
+        hasArchive = tasks.getToken i.tokens, tasks.archiveSelector
 
         el =
           lineNumber: ind
@@ -286,3 +285,5 @@ module.exports =
       #     copied items
       completedTasks.forEach (i)->
         editor.buffer.deleteRow i.lineNumber
+
+      # console.timeEnd 'archive'

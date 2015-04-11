@@ -1,5 +1,4 @@
 v2:
-  ☐ Improving token matching to use package
   ☐ Clean up tasks.coffee file
 
 v3:
@@ -8,6 +7,7 @@ v3:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+  ✔ Improving token matching @done(2015-04-11 10:53) @project(v2)
   ✔ Update menu @done(2015-04-10 21:55) @project(v2)
   ✔ Add benchmark @done(2015-04-10 21:52) @project(v2)
   ✔ Fix up tests @done(2015-04-10 21:35) @project(v2)
