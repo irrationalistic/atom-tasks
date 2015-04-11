@@ -1,7 +1,6 @@
 moment = require 'moment'
 _ = require 'underscore'
 CSON = require atom.config.resourcePath + "/node_modules/season/lib/cson.js"
-TaskGrammar = require './task-grammar'
 Grammar = require atom.config.resourcePath +
   "/node_modules/first-mate/lib/grammar.js"
 
