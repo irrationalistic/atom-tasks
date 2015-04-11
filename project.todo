@@ -1,15 +1,17 @@
 v2:
   ☐ Clean up tasks.coffee file
-  ☐ Add support for complex markers (like [ ] and [x])
-  ☐ Add package keywords
   ☐ Export functionality as a service?
 
 v3:
   ☐ Add pull-request to symbols view package
-  ☐ Add progress to status bar
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+  ✔ Fix for projects on own line @done(2015-04-11 17:20) @project(v2)
+  ✔ Add support for complex markers (like [ ] and [x]) @done(2015-04-11 16:56) @project(v2)
+  ✔ Support markers with different sizes @done(2015-04-11 16:56) @project(v2)
+  ✔ Add package keywords @done(2015-04-11 16:28) @project(v2)
+  ✔ Add progress to status bar @done(2015-04-11 16:28) @project(v3)
   ✔ Improving token matching @done(2015-04-11 10:53) @project(v2)
   ✔ Update menu @done(2015-04-10 21:55) @project(v2)
   ✔ Add benchmark @done(2015-04-10 21:52) @project(v2)

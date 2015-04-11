@@ -71,6 +71,7 @@ module.exports =
       res
 
     g.patterns = mat g.patterns
+    g.repository.marker.match = rep g.repository.marker.match
 
     # first, clear existing grammar
     atom.grammars.removeGrammarForScopeName 'source.todo'

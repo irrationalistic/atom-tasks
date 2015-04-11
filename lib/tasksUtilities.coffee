@@ -120,7 +120,7 @@ module.exports =
       # already a marker, swap it
       startCol = checkLine.bufferColumnForToken marker
       range = new Range new Point(lineNumber, startCol),
-        new Point(lineNumber, startCol + 1)
+        new Point(lineNumber, startCol + marker.value.length)
 
       editor.buffer.setTextInRange range, markerText
 
