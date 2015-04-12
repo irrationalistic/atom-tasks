@@ -1,6 +1,8 @@
 v2:
-  ☐ Clean up tasks.coffee file
+  ✔ Clean up tasks.coffee file @done(2015-04-12 11:21) @project(v2)
   ☐ Export functionality as a service?
+  ☐ Make value optional in addTag
+  ☐ Make value optional in updateTag (also support not having a value previously)
 
 v3:
   ☐ Add pull-request to symbols view package

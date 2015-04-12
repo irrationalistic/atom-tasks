@@ -12,6 +12,12 @@ module.exports =
   archiveSelector: 'control.tasks.header.archive'
   headerSelector: 'control.tasks.header-title'
 
+
+  ###*
+   * Get all the tags on a given line
+   * @param {TextEditor} editor  Editor to use
+   * @param {Number} lineNumber  Number of line
+  ###
   getAllTags: (editor, lineNumber)->
     tags = []
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
@@ -50,17 +56,39 @@ module.exports =
 
     tags
 
+
+  ###*
+   * Get a specific tag from the given line
+   * @param {TextEditor} editor     Editor to use
+   * @param {Number} lineNumber     Line number to use
+   * @param {String} tagName        Tag to find
+    ###
   getTag: (editor, lineNumber, tagName)->
     tags = @getAllTags editor, lineNumber
     _.find tags, (t)->t.tagName.value is tagName
 
+
+
+  ###*
+   * Helper for adding a tag/value to a given line
+   * @param {TextEditor} editor     Editor to use
+   * @param {Number} lineNumber     Line number to use
+   * @param {String} tagName        Name of tag
+   * @param {String} tagValue       Value of tag
+  ###
   addTag: (editor, lineNumber, tagName, tagValue)->
     point = new Point lineNumber, editor.buffer.lineLengthForRow lineNumber
     editor.buffer.insert point, " @#{tagName}(#{tagValue})"
 
+
+
+  ###*
+   * Helper for removing a tag by name
+   * @param {TextEditor} editor     Editor to use
+   * @param {Number} lineNumber     Line number to remove from
+   * @param {String} tagName        Tag name to remove
+  ###
   removeTag: (editor, lineNumber, tagName)->
-    # get the range of the tag,
-    # then remove it
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
     tags = @getAllTags editor, lineNumber
@@ -69,21 +97,53 @@ module.exports =
     match = _.find tags, (i)->i.tagName.value is tagName
     editor.buffer.delete match.range if match
 
+
+  ###*
+   * Helper for updating the value of a tag
+   * @param {TextEditor} editor   Editor to use
+   * @param {Number} lineNumber   Line number to update on
+   * @param {String} tagName      Tag name to update value of
+   * @param {String} newTagValue  New value of tag
+  ###
   updateTag: (editor, lineNumber, tagName, newTagValue)->
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
     tag = @getTag editor, lineNumber, tagName
     editor.buffer.setTextInRange tag.tagValue.range, newTagValue
 
+
+
+  ###*
+   * Find the token on the line given a css-like selector
+   * @param {Array} tokens    Array of tokens to look through
+   * @param {String} selector CSS-like selector to search for
+  ###
   getToken: (tokens, selector)->
     for token in tokens
       return token if selector in token.scopes
     null
 
+
+
+
+  ###*
+   * Given a token search string, find all
+   * lines in the given editor that match
+   * @param {TextEditor} editor Editor to use
+   * @param {String} toFind     CSS-like selector to search for
+  ###
   getLinesByToken: (editor, toFind)->
     editor.displayBuffer.tokenizedBuffer.tokenizedLines.filter (i)=>
       @getToken i.tokens, toFind
 
+
+
+  ###*
+   * Helper for finding all parent nodes of this line
+   * that are projects
+   * @param {TextEditor} editor   Editor to use
+   * @param {Number} lineNumber   Line number to start at
+  ###
   getProjects: (editor, lineNumber)->
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
@@ -97,16 +157,41 @@ module.exports =
         break if curLine.indentLevel is 0
     projects
 
+
+  ###*
+   * Given a project line, parse out just the name
+   * @param {TokenizedLine} line TokenizedLine to parse
+  ###
   parseProjectName: (line)->
     match = @getToken line.tokens, @headerSelector
     match.value
 
+
+
+  ###*
+   * Helper for getting the rows of a selection,
+   * which can be made up of an array of ranges.
+   * @param {Array} selection Array of ranges
+  ###
   getAllSelectionRows: (selection)->
     _.flatten selection.map (s)->s.getRows()
 
+
+  ###*
+   * Helper for getting the date based on given settings
+   * @return {Date/String} Date or date string to use
+  ###
   getFormattedDate: (date = Date.now())->
     moment(date).format(atom.config.get('tasks.dateFormat'))
 
+
+
+  ###*
+   * Helper for setting the marker of a given line
+   * @param {TextEditor} editor   Editor to use
+   * @param {Number} lineNumber   Line number to use
+   * @param {String} markerText   New marker to set
+  ###
   setMarker: (editor, lineNumber, markerText)->
     # given some line, change the marker
     # if it exists, or add one if it doesn't
