@@ -1,14 +1,16 @@
 v2:
-  ✔ Clean up tasks.coffee file @done(2015-04-12 11:21) @project(v2)
-  ☐ Export functionality as a service?
-  ☐ Make value optional in addTag
-  ☐ Make value optional in updateTag (also support not having a value previously)
 
 v3:
+  ☐ Export functionality as a service?
   ☐ Add pull-request to symbols view package
+  ☐ Add line-level decorations for given tags (#22)
+  ☐ Plan for query language system (#19)
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+  ✔ Make value optional in addTag @done(2015-04-12 22:14) @project(v2)
+  ✔ Make value optional in updateTag (also support not having a value previously) @done(2015-04-12 22:14) @project(v2)
+  ✔ Clean up tasks.coffee file @done(2015-04-12 11:21) @project(v2)
   ✔ Fix for projects on own line @done(2015-04-11 17:20) @project(v2)
   ✔ Add support for complex markers (like [ ] and [x]) @done(2015-04-11 16:56) @project(v2)
   ✔ Support markers with different sizes @done(2015-04-11 16:56) @project(v2)

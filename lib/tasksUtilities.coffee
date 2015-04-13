@@ -74,11 +74,14 @@ module.exports =
    * @param {TextEditor} editor     Editor to use
    * @param {Number} lineNumber     Line number to use
    * @param {String} tagName        Name of tag
-   * @param {String} tagValue       Value of tag
+   * @param {String} tagValue       Value of tag (optional)
   ###
   addTag: (editor, lineNumber, tagName, tagValue)->
     point = new Point lineNumber, editor.buffer.lineLengthForRow lineNumber
-    editor.buffer.insert point, " @#{tagName}(#{tagValue})"
+    if tagValue
+      editor.buffer.insert point, " @#{tagName}(#{tagValue})"
+    else
+      editor.buffer.insert point, " @#{tagName}"
 
 
 
@@ -103,14 +106,24 @@ module.exports =
    * @param {TextEditor} editor   Editor to use
    * @param {Number} lineNumber   Line number to update on
    * @param {String} tagName      Tag name to update value of
-   * @param {String} newTagValue  New value of tag
+   * @param {String} newTagValue  New value of tag (optional).
+   *                              Leave undefined to remove value
   ###
   updateTag: (editor, lineNumber, tagName, newTagValue)->
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
     tag = @getTag editor, lineNumber, tagName
-    editor.buffer.setTextInRange tag.tagValue.range, newTagValue
-
+    if newTagValue
+      if tag.tagValue.range.isEmpty()
+        pt = tag.tagName.range.end
+        editor.buffer.insert pt, "(#{newTagValue})"
+      else
+        editor.buffer.setTextInRange tag.tagValue.range, newTagValue
+    else
+      if not tag.tagValue.range.isEmpty()
+        tag.tagValue.range.start.column--
+        tag.tagValue.range.end.column++
+        editor.buffer.delete tag.tagValue.range
 
 
   ###*

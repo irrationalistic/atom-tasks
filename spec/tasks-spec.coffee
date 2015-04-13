@@ -108,6 +108,45 @@ describe 'Tasks', ->
 
       expect(hasCancelled).toBeDefined()
 
+  describe 'helper methods should work', ->
+    it 'can add a tag with or without a value', ->
+      editor.setCursorBufferPosition [1,0]
+      lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
+
+      tasksUtilities.addTag editor, 1, 'noval'
+
+      line = lines[1]
+      hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute.noval'
+      expect(hasTag).toBeDefined()
+
+      tasksUtilities.addTag editor, 1, 'hasval', 'myvalue'
+
+      line = lines[1]
+      hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute.hasval'
+      expect(hasTag).toBeDefined()
+
+    it 'can update tag values', ->
+      editor.setCursorBufferPosition [1,0]
+      lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
+
+      tasksUtilities.addTag editor, 1, 'original'
+
+      line = lines[1]
+      hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute.original'
+      expect(hasTag).toBeDefined()
+
+      tasksUtilities.updateTag editor, 1, 'original', 'newval'
+      line = lines[1]
+      hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute-value'
+      expect(hasTag).toBeDefined()
+
+      tasksUtilities.updateTag editor, 1, 'original'
+      line = lines[1]
+      hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute-value'
+      expect(hasTag).toBeNull()
+
+
+
 describe 'Taskpaper', ->
 
   beforeEach ->

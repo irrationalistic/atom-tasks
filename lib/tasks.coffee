@@ -146,6 +146,7 @@ module.exports =
       editor.insertText "#{finalIndent}#{marker} "
 
 
+
   ###*
    * Helper for completing a task
   ###
