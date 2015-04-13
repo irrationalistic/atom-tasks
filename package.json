@@ -1,10 +1,13 @@
 {
   "name": "tasks",
   "main": "./lib/tasks",
-  "version": "1.4.1",
+  "version": "2.0.0",
   "description": "Manage your todo lists",
   "keywords": [
-    "tasks", "todo", "productivity", "utilities",
+    "tasks",
+    "todo",
+    "productivity",
+    "utilities",
     "taskpaper"
   ],
   "repository": "https://github.com/irrationalistic/atom-tasks",
