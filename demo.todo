@@ -1,8 +1,9 @@
+☐ testing
 My Tasks:
   ☐ Implement testing for tasks package
-  ☐ Update styles
+  ☐ Update styles @normal(tag with value) sounds good
+  ✔ Create TODO package for atom @done(2015-04-09 09:28) @project(Archive)
 v2:
-  ☐ Have package order pizza
-＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
-Archive:
-  ✔ Create TODO package for atom @done(2014-06-13 08:05) @project(My Tasks)
+  ✘ Have package order pizza @cancelled(2015-04-09 21:45) @project(v2)
+  nested:
+    ☐ Another task

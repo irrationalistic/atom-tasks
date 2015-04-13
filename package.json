@@ -2,13 +2,25 @@
   "name": "tasks",
   "main": "./lib/tasks",
   "version": "1.4.1",
-  "description": "Edit .todo files with special syntax highlighting and hotkeys",
+  "description": "Manage your todo lists",
+  "keywords": [
+    "tasks", "todo", "productivity", "utilities",
+    "taskpaper"
+  ],
   "repository": "https://github.com/irrationalistic/atom-tasks",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"
   },
   "dependencies": {
-    "moment": "~2.6.0"
+    "moment": "~2.6.0",
+    "underscore": "^1.8.3"
+  },
+  "consumedServices": {
+    "status-bar": {
+      "versions": {
+        "^1.0.0": "consumeStatusBar"
+      }
+    }
   }
 }

@@ -1,3 +1,15 @@
+## 2.0.0 - Big Ol Rewrite
+* Major rewrite of core code
+* Moved archive tasks hotkey to cmd-shift-a
+* Convert a non-task to a task
+* Optimized performance for larger files
+* Colors improved
+* Supports line wrapping
+* Added status bar item for progress
+* Added utility functions for managing tags
+* Supports complex tokens like [ ], [x]
+* Menu commands have spaces in names
+
 ## 1.4.1 - Readme update
 * Updated hotkeys in readme
 

@@ -8,77 +8,50 @@
 'patterns': [
 
   {
-    'match': 'Archive:$'
-    'name': 'control.tasks.header.archive'
+    'match': '^([\\s]*)(.*):$'
+    'name': 'control.tasks.header.${2:/downcase}'
+    'captures': '2': 'name': 'control.tasks.header-title'
   }
 
   {
-    'match': '(.*):$'
-    'name': 'control.tasks.header'
-  }
-
-
-
-  {
-    'begin': '^(?:[\\s]+)(?=.*@done)'
+    'begin': '^([\\s]*)(?=.*@done)'
     'end': '$'
+    'name': 'tasks.text.done'
     'patterns': [
-      {
-        'match': '@([\\w]+) ?(?:\\((.*?)\\))?'
-        'name':'keyword.tasks.attribute.$1.done'
-      }
-      {
-        'match': '(✔)'
-        'captures':
-          '1': 'name': 'keyword.tasks.marker.done'
-          '2': 'name': 'tasks.text.done'
-      }
-      {
-        'match': '.'
-        'name': 'tasks.text.done'
-      }
+      {'include': '#marker'}
+      {'include': '#attribute'}
     ]
   }
 
   {
-    'begin': '^(?:[\\s]+)(?=.*@cancelled)'
+    'begin': '^([\\s]*)(?=.*@cancelled)'
     'end': '$'
+    'name': 'tasks.text.cancelled'
     'patterns': [
-      {
-        'match': '@([\\w]+) ?(?:\\((.*?)\\))?'
-        'name':'keyword.tasks.attribute.$1.cancelled'
-      }
-      {
-        'match': '(✘)'
-        'captures':
-          '1': 'name': 'keyword.tasks.marker.cancelled'
-          '2': 'name': 'tasks.text.cancelled'
-      }
-      {
-        'match': '.'
-        'name': 'tasks.text.cancelled'
-      }
+      {'include': '#marker'}
+      {'include': '#attribute'}
     ]
   }
 
   {
-    'begin': '^(?:[\\s]+?)(?=☐)'
-    'end': '$'
-    'patterns': [
-      {
-        'match': '@([\\w]+) ?(?:\\((.*?)\\))?'
-        'name':'keyword.tasks.attribute.$1'
-      }
-      {
-        'match': '(☐)'
-        'captures':
-          '1': 'name': 'keyword.tasks.marker'
-          '2': 'name': 'tasks.text'
-      }
-      {
-        'match': '.'
-        'name': 'tasks.text'
-      }
-    ]
+    'match': '^([\\s]*)((?:(?!:).)*)$'
+    'name': 'tasks.text'
+    'captures':
+      '2':
+        'patterns': [
+          {'include': '#marker'}
+          {'include': '#attribute'}
+        ]
   }
 ]
+
+'repository':
+  'marker':
+    'match': '(☐|✔|✘)'
+    'name': 'keyword.tasks.marker'
+  'attribute':
+    'match': '@([\\w]+)(?:\\((.*?)\\))?'
+    'name': 'tasks.attribute.$1'
+    'captures':
+      '1': 'name': 'tasks.attribute-name'
+      '2': 'name': 'tasks.attribute-value'

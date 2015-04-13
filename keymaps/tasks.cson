@@ -9,14 +9,14 @@
 # https://atom.io/docs/latest/advanced/keymaps
 '.platform-darwin atom-workspace atom-text-editor:not(.mini)[data-grammar~="todo"]':
   'cmd-enter': 'tasks:add'
-  'cmd-shift-enter': 'tasks:addAbove'
+  'cmd-shift-enter': 'tasks:add-above'
   'cmd-d': 'tasks:complete'
-  'cmd-a': 'tasks:archive'
+  'cmd-shift-a': 'tasks:archive'
   'ctrl-c': 'tasks:cancel'
 
 '.platform-win32 atom-workspace atom-text-editor:not(.mini)[data-grammar~="todo"], .platform-linux atom-workspace atom-text-editor:not(.mini)[data-grammar~="todo"]':
   'ctrl-enter': 'tasks:add'
-  'ctrl-shift-enter': 'tasks:addAbove'
+  'ctrl-shift-enter': 'tasks:add-above'
   'ctrl-d': 'tasks:complete'
   'ctrl-shift-a': 'tasks:archive'
   'alt-c': 'tasks:cancel'

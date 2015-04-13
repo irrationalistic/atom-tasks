@@ -2,22 +2,19 @@
 
 atom-text-editor::shadow, atom-text-editor {
   .tasks {
-
     &.header { color: @text-color-warning; }
-
-    &.task { color: @text-color-subtle; }
-
     &.marker { color: @text-color-subtle; }
-
-    &.attribute { color: lighten(@text-color-info, 20%); }
+    &.attribute { color: @text-color-info; }
 
     &.done,
     &.cancelled {
-      &.marker { color: @text-color-success; }
       &.text { color: @text-color-subtle; }
-      &.attribute { color: darken(@text-color-info, 20%); }
+      .marker { color: @text-color-success; }
+      .attribute {
+        color: mix(@text-color-info, @text-color-subtle, 30%);
+      }
     }
 
-    &.cancelled.marker { color: @text-color-error; }
+    &.cancelled .marker { color: @text-color-error; }
   }
 }
