@@ -1,4 +1,5 @@
 v3:
+  ☐ Add more test coverage for utilities
   ☐ Export functionality as a service?
   ☐ Add pull-request to symbols view package
   ☐ Add line-level decorations for given tags (#22)
