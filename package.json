@@ -1,6 +1,6 @@
 {
   "name": "tasks",
-  "main": "./lib/tasks",
+  "main": "./lib/tasksNew",
   "version": "2.0.0",
   "description": "Manage your todo lists",
   "keywords": [
@@ -16,7 +16,10 @@
     "atom": ">0.50.0"
   },
   "dependencies": {
+    "atom-space-pen-views": "^2.0.5",
     "moment": "~2.6.0",
+    "pathwatcher": "^4.4.0",
+    "sub-atom": "^1.0.0",
     "underscore": "^1.8.3"
   },
   "consumedServices": {

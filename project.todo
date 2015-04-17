@@ -1,4 +1,9 @@
 v3:
+  ☐ Rewrite package with full custom view
+  ☐ Allow rendering of items with new view
+  ☐ Implement enter for adding a new task
+  
+vx:
   ☐ Add more test coverage for utilities
   ☐ Export functionality as a service?
   ☐ Add pull-request to symbols view package
