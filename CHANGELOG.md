@@ -1,3 +1,6 @@
+## 2.0.1
+* Fix for bug with urls in tasks
+
 ## 2.0.0 - Big Ol Rewrite
 * Major rewrite of core code
 * Moved archive tasks hotkey to cmd-shift-a
