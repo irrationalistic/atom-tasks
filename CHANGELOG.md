@@ -1,3 +1,6 @@
+## 2.0.2
+* Fix for removal of bufferColumnForToken
+
 ## 2.0.1
 * Fix for bug with urls in tasks
 

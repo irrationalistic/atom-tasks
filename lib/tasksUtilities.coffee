@@ -216,7 +216,13 @@ module.exports =
 
     if marker
       # already a marker, swap it
-      startCol = checkLine.bufferColumnForToken marker
+      # startCol = checkLine.bufferColumnForToken marker
+      # bufferColumnForToken was removed, this is a replacement
+      startCol = 0
+      for token in checkLine.tokens
+        break if token.value is marker.value
+        startCol += token.bufferDelta
+
       range = new Range new Point(lineNumber, startCol),
         new Point(lineNumber, startCol + marker.value.length)
 
