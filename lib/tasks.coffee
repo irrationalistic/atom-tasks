@@ -320,7 +320,7 @@ module.exports =
         archiveText = """
 
 
-        ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+        _____________________
         Archive:
 
         """
