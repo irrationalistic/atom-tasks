@@ -1,3 +1,6 @@
+## 2.1.0
+* Added setting for controlling the archive separator
+
 ## 2.0.2
 * Fix for removal of bufferColumnForToken
 

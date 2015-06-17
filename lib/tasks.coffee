@@ -8,7 +8,7 @@ tasks = require './tasksUtilities'
 TaskStatusView = require './views/task-status-view'
 
 # Store the current settings for the markers
-marker = completeMarker = cancelledMarker = ''
+marker = completeMarker = cancelledMarker = archiveSeparator = ''
 
 module.exports =
 
@@ -24,6 +24,8 @@ module.exports =
       type: 'string', default: '✔'
     cancelledMarker:
       type: 'string', default: '✘'
+    archiveSeparator:
+      type: 'string', default: '＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿'
 
 
 
@@ -38,6 +40,7 @@ module.exports =
     marker = atom.config.get('tasks.baseMarker')
     completeMarker = atom.config.get('tasks.completeMarker')
     cancelledMarker = atom.config.get('tasks.cancelledMarker')
+    archiveSeparator = atom.config.get('tasks.archiveSeparator')
 
     # Whenever a marker setting changes, update the grammar
     atom.config.observe 'tasks.baseMarker', (val)=>
@@ -46,6 +49,8 @@ module.exports =
       completeMarker = val; @updateGrammar()
     atom.config.observe 'tasks.cancelledMarker', (val)=>
       cancelledMarker = val; @updateGrammar()
+    atom.config.observe 'tasks.archiveSeparator', (val)=>
+      archiveSeparator = val;
 
     # Update the grammar when activated
     @updateGrammar()
@@ -320,7 +325,7 @@ module.exports =
         archiveText = """
 
 
-        ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+        #{archiveSeparator}
         Archive:
 
         """
