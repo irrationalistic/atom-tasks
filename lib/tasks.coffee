@@ -8,7 +8,7 @@ tasks = require './tasksUtilities'
 TaskStatusView = require './views/task-status-view'
 
 # Store the current settings for the markers
-marker = completeMarker = cancelledMarker = archiveSeparator = ''
+marker = completeMarker = cancelledMarker = archiveSeparator = attributeMarker = ''
 
 module.exports =
 
@@ -26,6 +26,8 @@ module.exports =
       type: 'string', default: '✘'
     archiveSeparator:
       type: 'string', default: '＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿'
+    attributeMarker:
+      type: 'string', default: '@'
 
 
 
@@ -41,6 +43,7 @@ module.exports =
     completeMarker = atom.config.get('tasks.completeMarker')
     cancelledMarker = atom.config.get('tasks.cancelledMarker')
     archiveSeparator = atom.config.get('tasks.archiveSeparator')
+    attributeMarker = atom.config.get('tasks.attributeMarker')
 
     # Whenever a marker setting changes, update the grammar
     atom.config.observe 'tasks.baseMarker', (val)=>
@@ -50,7 +53,9 @@ module.exports =
     atom.config.observe 'tasks.cancelledMarker', (val)=>
       cancelledMarker = val; @updateGrammar()
     atom.config.observe 'tasks.archiveSeparator', (val)=>
-      archiveSeparator = val;
+      archiveSeparator = val
+    atom.config.observe 'tasks.attributeMarker', (val)=>
+      attributeMarker = val; @updateGrammar()
 
     # Update the grammar when activated
     @updateGrammar()
@@ -84,10 +89,16 @@ module.exports =
       str = str.replace '☐', clean marker
       str = str.replace '✔', clean completeMarker
       str = str.replace '✘', clean cancelledMarker
+      str = str.replace '@', clean attributeMarker
 
     # Load in the grammar manually and do replacement
     g = CSON.readFileSync __dirname + '/tasks.cson'
     g.repository.marker.match = rep g.repository.marker.match
+    g.repository.attribute.match = rep g.repository.attribute.match
+    g.patterns = g.patterns.map (pattern) ->
+      pattern.match = rep pattern.match if pattern.match
+      pattern.begin = rep pattern.begin if pattern.begin
+      pattern
 
     # first, clear existing grammar
     atom.grammars.removeGrammarForScopeName 'source.todo'
@@ -177,20 +188,20 @@ module.exports =
             .reverse()
 
           # Clear any cancelled information beforehand
-          tasks.removeTag editor, row, 'cancelled'
-          tasks.removeTag editor, row, 'project'
+          tasks.removeTag editor, row, 'cancelled', attributeMarker
+          tasks.removeTag editor, row, 'project', attributeMarker
 
           # Add the tag and the projects, if there are any
-          tasks.addTag editor, row, 'done', tasks.getFormattedDate()
+          tasks.addTag editor, row, attributeMarker, 'done', tasks.getFormattedDate()
           if projects.length
-            tasks.addTag editor, row, 'project', projects.join ' / '
+            tasks.addTag editor, row, attributeMarker, 'project', projects.join ' / '
           tasks.setMarker editor, row, completeMarker
 
         else if markerToken and doneToken
           # This task was previously completed, so
           # just need to clear out the tags
-          tasks.removeTag editor, row, 'done'
-          tasks.removeTag editor, row, 'project'
+          tasks.removeTag editor, row, 'done', attributeMarker
+          tasks.removeTag editor, row, 'project', attributeMarker
           tasks.setMarker editor, row, marker
 
 
@@ -221,20 +232,20 @@ module.exports =
             .reverse()
 
           # Clear any done information beforehand
-          tasks.removeTag editor, row, 'done'
-          tasks.removeTag editor, row, 'project'
+          tasks.removeTag editor, row, 'done', attributeMarker
+          tasks.removeTag editor, row, 'project', attributeMarker
 
           # Add the tag and the projects, if there are any
-          tasks.addTag editor, row, 'cancelled', tasks.getFormattedDate()
+          tasks.addTag editor, row, attributeMarker, 'cancelled', tasks.getFormattedDate()
           if projects.length
-            tasks.addTag editor, row, 'project', projects.join ' / '
+            tasks.addTag editor, row, attributeMarker, 'project', projects.join ' / '
           tasks.setMarker editor, row, cancelledMarker
 
         else if markerToken and cancelledToken
           # This task was previously completed, so
           # just need to clear out the tags
-          tasks.removeTag editor, row, 'cancelled'
-          tasks.removeTag editor, row, 'project'
+          tasks.removeTag editor, row, 'cancelled', attributeMarker
+          tasks.removeTag editor, row, 'project', attributeMarker
           tasks.setMarker editor, row, marker
 
 
@@ -257,9 +268,9 @@ module.exports =
         # based on existing ones
         tagsToUpdate = ['done', 'cancelled']
         for tag in tagsToUpdate
-          curDate = tasks.getTag(editor, row, tag)?.tagValue.value
+          curDate = tasks.getTag(editor, row, tag, attributeMarker)?.tagValue.value
           if curDate
-            tasks.updateTag editor, row, tag, tasks.getFormattedDate(curDate)
+            tasks.updateTag editor, row, attributeMarker, tag, tasks.getFormattedDate(curDate)
 
 
 

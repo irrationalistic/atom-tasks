@@ -2,7 +2,7 @@
 _ = require 'underscore'
 moment = require 'moment'
 
-ATTRIBUTE_RX = /( ?)(@[ ]?(([\w]+)(\((.*?)\))?))/gi
+# ATTRIBUTE_RX = /( ?)(@[ ]?(([\w]+)(\((.*?)\))?))/gi
 
 module.exports =
 
@@ -18,11 +18,12 @@ module.exports =
    * @param {TextEditor} editor  Editor to use
    * @param {Number} lineNumber  Number of line
   ###
-  getAllTags: (editor, lineNumber)->
+  getAllTags: (editor, lineNumber, attributeMarker)->
     tags = []
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
-    while match = ATTRIBUTE_RX.exec checkLine.text
+    attributeRX = new RegExp "( ?)(\\#{attributeMarker}[ ]?(([\\w]+)(\\((.*?)\\))?))", 'gi'
+    while match = attributeRX.exec checkLine.text
       sPt = new Point lineNumber, match.index
       ePt = new Point lineNumber, match.index + match[0].length
 
@@ -59,42 +60,45 @@ module.exports =
 
   ###*
    * Get a specific tag from the given line
-   * @param {TextEditor} editor     Editor to use
-   * @param {Number} lineNumber     Line number to use
-   * @param {String} tagName        Tag to find
+   * @param {TextEditor} editor      Editor to use
+   * @param {Number} lineNumber      Line number to use
+   * @param {String} tagName         Tag to find
+   * @param {String} attributeMarker Marker character in use
     ###
-  getTag: (editor, lineNumber, tagName)->
-    tags = @getAllTags editor, lineNumber
+  getTag: (editor, lineNumber, tagName, attributeMarker)->
+    tags = @getAllTags editor, lineNumber, attributeMarker
     _.find tags, (t)->t.tagName.value is tagName
 
 
 
   ###*
    * Helper for adding a tag/value to a given line
-   * @param {TextEditor} editor     Editor to use
-   * @param {Number} lineNumber     Line number to use
-   * @param {String} tagName        Name of tag
-   * @param {String} tagValue       Value of tag (optional)
+   * @param {TextEditor} editor      Editor to use
+   * @param {Number} lineNumber      Line number to use
+   * @param {String} attributeMarker Marker being used for attributes
+   * @param {String} tagName         Name of tag
+   * @param {String} tagValue        Value of tag (optional)
   ###
-  addTag: (editor, lineNumber, tagName, tagValue)->
+  addTag: (editor, lineNumber, attributeMarker, tagName, tagValue)->
     point = new Point lineNumber, editor.buffer.lineLengthForRow lineNumber
     if tagValue
-      editor.buffer.insert point, " @#{tagName}(#{tagValue})"
+      editor.buffer.insert point, " #{attributeMarker}#{tagName}(#{tagValue})"
     else
-      editor.buffer.insert point, " @#{tagName}"
+      editor.buffer.insert point, " #{attributeMarker}#{tagName}"
 
 
 
   ###*
    * Helper for removing a tag by name
-   * @param {TextEditor} editor     Editor to use
-   * @param {Number} lineNumber     Line number to remove from
-   * @param {String} tagName        Tag name to remove
+   * @param {TextEditor} editor      Editor to use
+   * @param {Number} lineNumber      Line number to remove from
+   * @param {String} tagName         Tag name to remove
+   * @param {String} attributeMarker Marker character in use
   ###
-  removeTag: (editor, lineNumber, tagName)->
+  removeTag: (editor, lineNumber, tagName, attributeMarker)->
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
-    tags = @getAllTags editor, lineNumber
+    tags = @getAllTags editor, lineNumber, attributeMarker
     return if not tags
 
     match = _.find tags, (i)->i.tagName.value is tagName
@@ -103,16 +107,17 @@ module.exports =
 
   ###*
    * Helper for updating the value of a tag
-   * @param {TextEditor} editor   Editor to use
-   * @param {Number} lineNumber   Line number to update on
-   * @param {String} tagName      Tag name to update value of
-   * @param {String} newTagValue  New value of tag (optional).
-   *                              Leave undefined to remove value
+   * @param {TextEditor} editor      Editor to use
+   * @param {Number} lineNumber      Line number to update on
+   * @param {String} attributeMarker Marker character in use
+   * @param {String} tagName         Tag name to update value of
+   * @param {String} newTagValue     New value of tag (optional).
+   *                                 Leave undefined to remove value
   ###
-  updateTag: (editor, lineNumber, tagName, newTagValue)->
+  updateTag: (editor, lineNumber, attributeMarker, tagName, newTagValue)->
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
-    tag = @getTag editor, lineNumber, tagName
+    tag = @getTag editor, lineNumber, tagName, attributeMarker
     if newTagValue
       if tag.tagValue.range.isEmpty()
         pt = tag.tagName.range.end

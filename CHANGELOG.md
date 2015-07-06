@@ -1,3 +1,6 @@
+## 2.2.0
+* Added setting for controlling the attribute marker
+
 ## 2.1.0
 * Added setting for controlling the archive separator
 

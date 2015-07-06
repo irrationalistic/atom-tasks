@@ -113,13 +113,13 @@ describe 'Tasks', ->
       editor.setCursorBufferPosition [1,0]
       lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
 
-      tasksUtilities.addTag editor, 1, 'noval'
+      tasksUtilities.addTag editor, 1, '@', 'noval'
 
       line = lines[1]
       hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute.noval'
       expect(hasTag).toBeDefined()
 
-      tasksUtilities.addTag editor, 1, 'hasval', 'myvalue'
+      tasksUtilities.addTag editor, 1, '@', 'hasval', 'myvalue'
 
       line = lines[1]
       hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute.hasval'
@@ -129,22 +129,31 @@ describe 'Tasks', ->
       editor.setCursorBufferPosition [1,0]
       lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
 
-      tasksUtilities.addTag editor, 1, 'original'
+      tasksUtilities.addTag editor, 1, '@', 'original'
 
       line = lines[1]
       hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute.original'
       expect(hasTag).toBeDefined()
 
-      tasksUtilities.updateTag editor, 1, 'original', 'newval'
+      tasksUtilities.updateTag editor, 1, '@', 'original', 'newval'
       line = lines[1]
       hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute-value'
       expect(hasTag).toBeDefined()
 
-      tasksUtilities.updateTag editor, 1, 'original'
+      tasksUtilities.updateTag editor, 1, '@', 'original'
       line = lines[1]
       hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute-value'
       expect(hasTag).toBeNull()
 
+    it 'supports custom attribute markers', ->
+      atom.config.set 'tasks.attributeMarker', '#'
+      editor.setText '☐ Test'
+      tasksUtilities.addTag editor, 0, '#', 'test'
+
+      lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
+
+      hasTag = tasksUtilities.getToken lines[0].tokens, 'tasks.attribute.test'
+      expect(hasTag).toBeDefined()
 
 
 describe 'Taskpaper', ->
