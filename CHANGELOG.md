@@ -1,3 +1,6 @@
+## 2.4.0
+* Added hotkey for convert-to-task
+
 ## 2.3.0
 * Added support for markdown highlighting in tasks
 
