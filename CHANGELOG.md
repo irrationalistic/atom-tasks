@@ -1,3 +1,6 @@
+## 2.3.0
+* Added support for markdown highlighting in tasks
+
 ## 2.2.0
 * Added setting for controlling the attribute marker
 
