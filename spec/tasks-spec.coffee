@@ -13,6 +13,7 @@ describe 'Tasks', ->
     runs ->
       buffer = editor.getBuffer()
     waitsForPromise ->
+      atom.packages.activatePackage('language-gfm')
       atom.packages.activatePackage('tasks')
     runs ->
       workspaceElement = atom.views.getView atom.workspace
@@ -34,6 +35,11 @@ describe 'Tasks', ->
     it 'adds .text to plain text', ->
       expect(find('.text').length).toBe 4
 
+    it 'supports markdown in plain text', ->
+      expect(find('.bold').length).toBe 1
+      expect(find('.italic').length).toBe 1
+      expect(find('.link').length).toBe 2
+
   describe 'should be able to add new tasks', ->
     it 'adds a new task', ->
       Tasks.newTask()
@@ -54,7 +60,7 @@ describe 'Tasks', ->
       editor.setCursorBufferPosition [1,0]
       Tasks.completeTask()
       doneTasks = tasksUtilities.getLinesByToken editor,
-        'tasks.text.done'
+        'tasks.text.done.source.gfm'
       projectTasks = tasksUtilities.getLinesByToken editor,
         'tasks.attribute.project'
 
@@ -66,7 +72,7 @@ describe 'Tasks', ->
       editor.setCursorBufferPosition [1,0]
       Tasks.cancelTask()
       cancelled = tasksUtilities.getLinesByToken editor,
-        'tasks.text.cancelled'
+        'tasks.text.cancelled.source.gfm'
       projectTasks = tasksUtilities.getLinesByToken editor,
         'tasks.attribute.project'
 
@@ -188,7 +194,7 @@ describe 'Taskpaper', ->
       Tasks.completeTask()
 
       doneTasks = tasksUtilities.getLinesByToken editor,
-        'tasks.text.done'
+        'tasks.text.done.source.gfm'
       projectTasks = tasksUtilities.getLinesByToken editor,
         'tasks.attribute.project'
 
@@ -227,7 +233,7 @@ describe 'Complex Markers', ->
       Tasks.completeTask()
 
       doneTasks = tasksUtilities.getLinesByToken editor,
-        'tasks.text.done'
+        'tasks.text.done.source.gfm'
       projectTasks = tasksUtilities.getLinesByToken editor,
         'tasks.attribute.project'
 

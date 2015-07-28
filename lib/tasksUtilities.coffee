@@ -7,8 +7,8 @@ moment = require 'moment'
 module.exports =
 
   markerSelector: 'keyword.tasks.marker'
-  doneSelector: 'tasks.text.done'
-  cancelledSelector: 'tasks.text.cancelled'
+  doneSelector: 'tasks.text.done.source.gfm'
+  cancelledSelector: 'tasks.text.cancelled.source.gfm'
   archiveSelector: 'control.tasks.header.archive'
   headerSelector: 'control.tasks.header-title'
 

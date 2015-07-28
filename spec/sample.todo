@@ -1,5 +1,5 @@
 My Project:
-  ☐ A sample task @tag1 and something else with url http://atom.io @tag2
+  ☐ A **sample** task @tag1 and _something_ else [with](http://atom.io) url http://atom.io @tag2
   ✔ A second task @tag1 things @done(2015-04-10 20:49) @project(My Project)
   not a real task
   ✘ A cancelled task @cancelled(2015-04-10 20:49) @project(My Project)
