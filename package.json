@@ -1,7 +1,7 @@
 {
   "name": "tasks",
   "main": "./lib/tasks",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Manage your todo lists",
   "keywords": [
     "tasks",
