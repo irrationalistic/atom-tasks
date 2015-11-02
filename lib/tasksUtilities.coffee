@@ -166,12 +166,14 @@ module.exports =
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
     projects = []
+    curHeaderLevel = checkLine.indentLevel
     return projects if lineNumber is 0
     for row in [lineNumber-1..0]
       curLine = lines[row]
-      if curLine.indentLevel < checkLine.indentLevel
+      if curLine.indentLevel < curHeaderLevel
         if @getToken curLine.tokens, @headerSelector
           projects.push curLine
+          curHeaderLevel = curLine.indentLevel
         break if curLine.indentLevel is 0
     projects
 
