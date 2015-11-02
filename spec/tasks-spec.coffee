@@ -79,6 +79,20 @@ describe 'Tasks', ->
       expect(cancelled.length).toBe 2
       expect(projectTasks.length).toBe 3
 
+  describe 'should be able to set/update timestamps', ->
+    it 'adds a timestamp', ->
+      editor.setCursorBufferPosition [1,0]
+      Tasks.setTimestamp()
+      timestampTag = tasksUtilities.getTag editor, 1, 'timestamp', '@'
+      expect(timestampTag).toBeDefined()
+      
+    it 'should update a timestamp', ->
+      curDate = tasksUtilities.getFormattedDate()
+      editor.setCursorBufferPosition [2,0]
+      Tasks.setTimestamp()
+      doneTag = tasksUtilities.getTag editor, 2, 'done', '@'
+      expect(doneTag.tagValue.value).toBe(curDate)
+
   describe 'should be able to archive completed tasks', ->
     it 'creates an archive section', ->
       preText = editor.getText()

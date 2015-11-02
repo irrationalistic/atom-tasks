@@ -14,6 +14,7 @@
   'cmd-shift-a': 'tasks:archive'
   'ctrl-c': 'tasks:cancel'
   'cmd-shift-l': 'tasks:convert-to-task'
+  'ctrl-s': 'tasks:set-timestamp'
 
 '.platform-win32 atom-workspace atom-text-editor:not(.mini)[data-grammar~="todo"], .platform-linux atom-workspace atom-text-editor:not(.mini)[data-grammar~="todo"]':
   'ctrl-enter': 'tasks:add'
@@ -22,3 +23,4 @@
   'ctrl-shift-a': 'tasks:archive'
   'alt-c': 'tasks:cancel'
   'ctrl-shift-l': 'tasks:convert-to-task'
+  'ctrl-shift-s': 'tasks:set-timestamp'

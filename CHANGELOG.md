@@ -1,3 +1,8 @@
+## 2.5.0
+* Rewrote grammar to prevent extra markers from highlighting
+* Added support for highlighting urls inline
+* Added new command for adding/updating the timestamp on a task
+
 ## 2.4.0
 * Added hotkey for convert-to-task
 

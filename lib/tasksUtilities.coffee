@@ -118,6 +118,7 @@ module.exports =
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
     tag = @getTag editor, lineNumber, tagName, attributeMarker
+    return if not tag
     if newTagValue
       if tag.tagValue.range.isEmpty()
         pt = tag.tagName.range.end

@@ -69,6 +69,7 @@ module.exports =
       "tasks:update-timestamps": => @tasksUpdateTimestamp()
       "tasks:cancel": => @cancelTask()
       "tasks:convert-to-task": => @convertToTask()
+      "tasks:set-timestamp": => @setTimestamp()
 
 
 
@@ -266,7 +267,7 @@ module.exports =
         screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
         # These tags will receive updated timestamps
         # based on existing ones
-        tagsToUpdate = ['done', 'cancelled']
+        tagsToUpdate = ['done', 'cancelled', 'timestamp']
         for tag in tagsToUpdate
           curDate = tasks.getTag(editor, row, tag, attributeMarker)?.tagValue.value
           if curDate
@@ -295,6 +296,36 @@ module.exports =
           tasks.setMarker editor, row, marker
 
 
+  ###*
+   * Helper for setting the timestamp on a task. If it exists, remove and
+   * reset it. If it doesn't exist, add it. This will also update the timestamp
+   * for tasks that have 'done' or 'cancelled'
+  ###
+  setTimestamp: ->
+    editor = atom.workspace.getActiveTextEditor()
+    return if not editor
+
+    selection = editor.getSelectedBufferRanges()
+
+    editor.transact ->
+      tasks.getAllSelectionRows(selection).map (row)->
+        screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
+
+        markerToken = tasks.getToken screenLine.tokens, tasks.markerSelector
+
+        if markerToken
+          doneTag = tasks.getTag editor, row, 'done', attributeMarker
+          cancelledTag = tasks.getTag editor, row, 'cancelled', attributeMarker
+          timestampTag = tasks.getTag editor, row, 'timestamp', attributeMarker
+
+          curDate = tasks.getFormattedDate()
+
+          if not doneTag and not cancelledTag and not timestampTag
+            tasks.addTag editor, row, attributeMarker, 'timestamp', curDate
+          else
+            tasks.updateTag editor, row, attributeMarker, 'done', curDate
+            tasks.updateTag editor, row, attributeMarker, 'cancelled', curDate
+            tasks.updateTag editor, row, attributeMarker, 'timestamp', curDate
 
   ###*
    * Helper for handling the archiving of
