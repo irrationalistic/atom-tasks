@@ -1,3 +1,6 @@
+## 2.5.1
+* Added timestamp command to menu and readme
+
 ## 2.5.0
 * Rewrote grammar to prevent extra markers from highlighting
 * Added support for highlighting urls inline

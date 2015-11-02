@@ -35,6 +35,7 @@ Based off the awesome sublime text plugin https://github.com/aziz/PlainTasks
 * **cmd-d:** toggle completion of the task
 * **cmd-shift-a:** move all completed tasks to the archive section
 * **ctrl-c:** cancel the selected tasks
+* **ctrl-s:** add/update timestamp for current task
 
 ### PC, Linux
 * **ctrl-enter:** add a new todo item below the current
@@ -42,6 +43,7 @@ Based off the awesome sublime text plugin https://github.com/aziz/PlainTasks
 * **ctrl-d:** toggle completion of the task
 * **ctrl-shift-a:** move all completed tasks to the archive section
 * **alt-c:** cancel the selected tasks
+* **ctrl-shift-s:** add/update timestamp for current task
 
 ### Other Methods
 * **Convert to Task:** Converts a non-task line to a task

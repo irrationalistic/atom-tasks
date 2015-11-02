@@ -29,5 +29,9 @@
       'label': 'Update Timestamp Format',
       'command': 'tasks:update-timestamps'
     }
+    {
+      'label': 'Add/Update Current Timestamp',
+      'command': 'tasks:set-timestamp'
+    }
     {'type': 'separator'}
   ]
