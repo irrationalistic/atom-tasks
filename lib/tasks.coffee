@@ -93,7 +93,7 @@ module.exports =
 
     # Load in the grammar manually and do replacement
     g = CSON.readFileSync __dirname + '/tasks.cson'
-    g.repository.marker.match = rep g.repository.marker.match
+    # g.repository.marker.match = rep g.repository.marker.match
     g.repository.attribute.match = rep g.repository.attribute.match
     g.patterns = g.patterns.map (pattern) ->
       pattern.match = rep pattern.match if pattern.match

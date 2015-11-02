@@ -14,19 +14,22 @@
   }
 
   {
-    'begin': '^([\\s]*)(?=.*@done)'
+    'begin': '^([\\s]*)(✔)(?=.*@done)'
     'end': '$'
     'name': 'tasks.text.done.source.gfm'
+    'beginCaptures':
+      '2': 'name': 'keyword.tasks.marker'
     'patterns': [
-      {'include': '#marker'}
       {'include': '#attribute'}
     ]
   }
 
   {
-    'begin': '^([\\s]*)(?=.*@cancelled)'
+    'begin': '^([\\s]*)(✘)(?=.*@cancelled)'
     'end': '$'
     'name': 'tasks.text.cancelled.source.gfm'
+    'beginCaptures':
+      '2': 'name': 'keyword.tasks.marker'
     'patterns': [
       {'include': '#marker'}
       {'include': '#attribute'}
@@ -34,22 +37,20 @@
   }
 
   {
-    'match': '^([\\s]*)((?:(?!:$).)*)$'
+    'match': '^([\\s]*)(☐)((?:(?!:$).)*)$'
     'name': 'tasks.text.source.gfm'
     'captures':
-      '2':
+      '2': 'name': 'keyword.tasks.marker'
+      '3':
         'patterns': [
-          {'include': '#marker'}
           {'include': '#attribute'}
           {'include': 'source.gfm'}
+          {'include': 'text.hyperlink'}
         ]
   }
 ]
 
 'repository':
-  'marker':
-    'match': '(☐|✔|✘)'
-    'name': 'keyword.tasks.marker'
   'attribute':
     'match': '@([\\w]+)(?:\\((.*?)\\))?'
     'name': 'tasks.attribute.$1'

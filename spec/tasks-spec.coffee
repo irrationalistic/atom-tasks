@@ -33,7 +33,7 @@ describe 'Tasks', ->
       expect(find('.attribute').length).toBe 7
 
     it 'adds .text to plain text', ->
-      expect(find('.text').length).toBe 4
+      expect(find('.text').length).toBe 3
 
     it 'supports markdown in plain text', ->
       expect(find('.bold').length).toBe 1
@@ -225,7 +225,7 @@ describe 'Complex Markers', ->
       expect(find('.attribute').length).toBe 1
 
     it 'adds .text to plain text', ->
-      expect(find('.text').length).toBe 4
+      expect(find('.text').length).toBe 3
 
   describe 'should support the same marker for base, done, and cancelled', ->
     it 'can complete a task', ->
