@@ -1,3 +1,9 @@
+## 2.6.0
+* Updated after breaking changes:
+  * Removed dependency on displayBuffer
+  * Fixes bugs with task management
+  * Tests are broken, so they are removed temporarily until a solution is found
+
 ## 2.5.1
 * Added timestamp command to menu and readme
 

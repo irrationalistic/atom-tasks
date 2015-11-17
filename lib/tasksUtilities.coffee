@@ -12,6 +12,46 @@ module.exports =
   archiveSelector: 'control.tasks.header.archive'
   headerSelector: 'control.tasks.header-title'
 
+    # Escape a string
+  cleanRegex: (str)->
+    for pat in ['\\', '/', '[', ']', '*', '.', '+', '(', ')']
+      str = str.replace pat, '\\' + pat
+    str
+
+  parseLine: (editor, lineNumber, config) ->
+    whiteRx = /^\s*/
+    projectRx = /^\s*(.*):$/
+    baseMarker = @cleanRegex config.baseMarker
+    completeMarker = @cleanRegex config.completeMarker
+    cancelledMarker = @cleanRegex config.cancelledMarker
+    taskRx = new RegExp "^(\\s*)(#{baseMarker}|#{completeMarker}|#{cancelledMarker})(.*)$"
+
+    line = editor.buffer.lineForRow lineNumber
+    indentation = editor.indentationForBufferRow lineNumber
+
+    result =
+      lineNumber: lineNumber
+      line: line
+      indentation: indentation
+      firstNonWhitespaceIndex: line.match(whiteRx)[0].length
+
+    type = 'text'
+    if projectRx.test line
+      type = 'project'
+      match = line.match projectRx
+      result.project = match[1]
+
+    else if taskRx.test line
+      type = 'task'
+      match = line.match taskRx
+      result.marker =
+        value: match[2]
+        range: new Range new Point(lineNumber, match[1].length), new Point(lineNumber, match[1].length + match[2].length)
+      result.text = match[3].trim()
+      result.tags = @getAllTags editor, lineNumber, config.attributeMarker
+
+    result.type = type
+    return result
 
   ###*
    * Get all the tags on a given line
@@ -20,10 +60,11 @@ module.exports =
   ###
   getAllTags: (editor, lineNumber, attributeMarker)->
     tags = []
-    lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
-    checkLine = lines[lineNumber]
+    # lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
+    # checkLine = lines[lineNumber]
+    checkLine = editor.buffer.lineForRow lineNumber
     attributeRX = new RegExp "( ?)(\\#{attributeMarker}[ ]?(([\\w]+)(\\((.*?)\\))?))", 'gi'
-    while match = attributeRX.exec checkLine.text
+    while match = attributeRX.exec checkLine
       sPt = new Point lineNumber, match.index
       ePt = new Point lineNumber, match.index + match[0].length
 
@@ -95,13 +136,8 @@ module.exports =
    * @param {String} tagName         Tag name to remove
    * @param {String} attributeMarker Marker character in use
   ###
-  removeTag: (editor, lineNumber, tagName, attributeMarker)->
-    lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
-    checkLine = lines[lineNumber]
-    tags = @getAllTags editor, lineNumber, attributeMarker
-    return if not tags
-
-    match = _.find tags, (i)->i.tagName.value is tagName
+  removeTag: (editor, info, tagName)->
+    match = _.find info.tags, (i)->i.tagName.value is tagName
     editor.buffer.delete match.range if match
 
 
@@ -114,10 +150,8 @@ module.exports =
    * @param {String} newTagValue     New value of tag (optional).
    *                                 Leave undefined to remove value
   ###
-  updateTag: (editor, lineNumber, attributeMarker, tagName, newTagValue)->
-    lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
-    checkLine = lines[lineNumber]
-    tag = @getTag editor, lineNumber, tagName, attributeMarker
+  updateTag: (editor, info, attributeMarker, tagName, newTagValue)->
+    tag = _.find info.tags, (t) -> t.tagName.value is tagName
     return if not tag
     if newTagValue
       if tag.tagValue.range.isEmpty()
@@ -213,30 +247,14 @@ module.exports =
    * @param {Number} lineNumber   Line number to use
    * @param {String} markerText   New marker to set
   ###
-  setMarker: (editor, lineNumber, markerText)->
+  setMarker: (editor, info, markerText)->
     # given some line, change the marker
     # if it exists, or add one if it doesn't
 
-    lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
-    checkLine = lines[lineNumber]
-
-    marker = @getToken checkLine.tokens, @markerSelector
-
-    if marker
-      # already a marker, swap it
-      # startCol = checkLine.bufferColumnForToken marker
-      # bufferColumnForToken was removed, this is a replacement
-      startCol = 0
-      for token in checkLine.tokens
-        break if token.value is marker.value
-        startCol += token.bufferDelta
-
-      range = new Range new Point(lineNumber, startCol),
-        new Point(lineNumber, startCol + marker.value.length)
-
-      editor.buffer.setTextInRange range, markerText
+    if info.marker
+      editor.buffer.setTextInRange info.marker.range, markerText
 
     else
       # need to insert the marker
-      pt = new Point lineNumber, checkLine.firstNonWhitespaceIndex
+      pt = new Point info.lineNumber, info.firstNonWhitespaceIndex
       editor.buffer.insert pt, markerText + ' '

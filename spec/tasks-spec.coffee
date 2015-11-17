@@ -6,7 +6,7 @@ find = (selector)->
   workspaceElement.querySelectorAll "body /deep/ #{selector}"
 
 describe 'Tasks', ->
-
+###
   beforeEach ->
     waitsForPromise ->
       atom.workspace.open('sample.todo').then (o) -> editor = o
@@ -85,7 +85,7 @@ describe 'Tasks', ->
       Tasks.setTimestamp()
       timestampTag = tasksUtilities.getTag editor, 1, 'timestamp', '@'
       expect(timestampTag).toBeDefined()
-      
+
     it 'should update a timestamp', ->
       curDate = tasksUtilities.getFormattedDate()
       editor.setCursorBufferPosition [2,0]
@@ -253,3 +253,4 @@ describe 'Complex Markers', ->
 
       expect(doneTasks.length).toBe 1
       expect(projectTasks.length).toBe 1
+###

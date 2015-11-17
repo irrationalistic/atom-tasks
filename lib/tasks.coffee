@@ -145,22 +145,13 @@ module.exports =
 
     editor.transact ->
       pos = editor.getCursorBufferPosition()
-      indentation = 0
-
-      if direction is -1
-        line = editor.displayBuffer.tokenizedBuffer.tokenizedLines[pos.row - 1]
-      else
-        line = editor.displayBuffer.tokenizedBuffer.tokenizedLines[pos.row]
-        if tasks.getToken line.tokens, tasks.headerSelector
-          # is a project
-          indentation++
-
-      # ok, got the indentation, let's make the line
-      finalIndent = editor.buildIndentString indentation
+      info = tasks.parseLine editor, pos.row, atom.config.get('tasks')
 
       editor.insertNewlineBelow() if direction is 1
       editor.insertNewlineAbove() if direction is -1
-      editor.insertText "#{finalIndent}#{marker} "
+      editor.insertText "#{marker} "
+
+      editor.indentSelectedRows() if info.type is 'project' and direction is 1
 
 
 
@@ -175,10 +166,11 @@ module.exports =
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
-        screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
 
-        markerToken = tasks.getToken screenLine.tokens, tasks.markerSelector
-        doneToken = tasks.getToken screenLine.tokens, tasks.doneSelector
+        info = tasks.parseLine editor, row, atom.config.get('tasks')
+
+        markerToken = info.marker
+        doneToken = _.find info.tags, (tag) -> tag.tagName.value is 'done'
 
         if markerToken and not doneToken
           # This is a task and isn't already done,
@@ -189,21 +181,27 @@ module.exports =
             .reverse()
 
           # Clear any cancelled information beforehand
-          tasks.removeTag editor, row, 'cancelled', attributeMarker
-          tasks.removeTag editor, row, 'project', attributeMarker
+          tasks.removeTag editor, info, 'cancelled'
+          info = tasks.parseLine editor, row, atom.config.get('tasks')
+          tasks.removeTag editor, info, 'project'
+          info = tasks.parseLine editor, row, atom.config.get('tasks')
 
           # Add the tag and the projects, if there are any
           tasks.addTag editor, row, attributeMarker, 'done', tasks.getFormattedDate()
           if projects.length
             tasks.addTag editor, row, attributeMarker, 'project', projects.join ' / '
-          tasks.setMarker editor, row, completeMarker
+
+          info = tasks.parseLine editor, row, atom.config.get('tasks')
+          tasks.setMarker editor, info, completeMarker
 
         else if markerToken and doneToken
           # This task was previously completed, so
           # just need to clear out the tags
-          tasks.removeTag editor, row, 'done', attributeMarker
-          tasks.removeTag editor, row, 'project', attributeMarker
-          tasks.setMarker editor, row, marker
+          tasks.removeTag editor, info, 'done'
+          info = tasks.parseLine editor, row, atom.config.get('tasks')
+          tasks.removeTag editor, info, 'project'
+          info = tasks.parseLine editor, row, atom.config.get('tasks')
+          tasks.setMarker editor, info, marker
 
 
 
@@ -218,11 +216,12 @@ module.exports =
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
-        screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
 
-        markerToken = tasks.getToken screenLine.tokens, tasks.markerSelector
-        cancelledToken = tasks.getToken screenLine.tokens,
-          tasks.cancelledSelector
+        info = tasks.parseLine editor, row, atom.config.get('tasks')
+
+        markerToken = info.marker
+        cancelledToken = _.find info.tags, (tag) -> tag.tagName.value is 'cancelled'
+
 
         if markerToken and not cancelledToken
           # This is a task and isn't already cancelled,
@@ -233,21 +232,26 @@ module.exports =
             .reverse()
 
           # Clear any done information beforehand
-          tasks.removeTag editor, row, 'done', attributeMarker
-          tasks.removeTag editor, row, 'project', attributeMarker
+          tasks.removeTag editor, info, 'done'
+          info = tasks.parseLine editor, row, atom.config.get('tasks')
+          tasks.removeTag editor, info, 'project'
 
           # Add the tag and the projects, if there are any
           tasks.addTag editor, row, attributeMarker, 'cancelled', tasks.getFormattedDate()
           if projects.length
             tasks.addTag editor, row, attributeMarker, 'project', projects.join ' / '
-          tasks.setMarker editor, row, cancelledMarker
+
+          info = tasks.parseLine editor, row, atom.config.get('tasks')
+          tasks.setMarker editor, info, cancelledMarker
 
         else if markerToken and cancelledToken
           # This task was previously completed, so
           # just need to clear out the tags
-          tasks.removeTag editor, row, 'cancelled', attributeMarker
-          tasks.removeTag editor, row, 'project', attributeMarker
-          tasks.setMarker editor, row, marker
+          tasks.removeTag editor, info, 'cancelled'
+          info = tasks.parseLine editor, row, atom.config.get('tasks')
+          tasks.removeTag editor, info, 'project'
+          info = tasks.parseLine editor, row, atom.config.get('tasks')
+          tasks.setMarker editor, info, marker
 
 
 
@@ -269,9 +273,11 @@ module.exports =
         # based on existing ones
         tagsToUpdate = ['done', 'cancelled', 'timestamp']
         for tag in tagsToUpdate
-          curDate = tasks.getTag(editor, row, tag, attributeMarker)?.tagValue.value
+          info = tasks.parseLine editor, row, atom.config.get('tasks')
+          curDateTag = _.find info.tags, (t) -> t.tagName.value is tag
+          curDate = curDateTag?.tagValue.value
           if curDate
-            tasks.updateTag editor, row, attributeMarker, tag, tasks.getFormattedDate(curDate)
+            tasks.updateTag editor, info, attributeMarker, tag, tasks.getFormattedDate(curDate)
 
 
 
@@ -287,13 +293,11 @@ module.exports =
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
-        screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
-        markerToken = tasks.getToken screenLine.tokens, tasks.markerSelector
-        projectToken = tasks.getToken screenLine.tokens, tasks.headerSelector
-        if not markerToken and not projectToken
+        info = tasks.parseLine editor, row, atom.config.get('tasks')
+        if info.type is 'text'
           # Only set the marker if this isn't
           # already a task or header.
-          tasks.setMarker editor, row, marker
+          tasks.setMarker editor, info, marker
 
 
   ###*
@@ -309,23 +313,23 @@ module.exports =
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
-        screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
+        info = tasks.parseLine editor, row, atom.config.get('tasks')
 
-        markerToken = tasks.getToken screenLine.tokens, tasks.markerSelector
-
-        if markerToken
-          doneTag = tasks.getTag editor, row, 'done', attributeMarker
-          cancelledTag = tasks.getTag editor, row, 'cancelled', attributeMarker
-          timestampTag = tasks.getTag editor, row, 'timestamp', attributeMarker
+        if info.marker
+          doneTag = _.find info.tags, (t) -> t.tagName.value is 'done'
+          cancelledTag = _.find info.tags, (t) -> t.tagName.value is 'cancelled'
+          timestampTag = _.find info.tags, (t) -> t.tagName.value is 'timestamp'
 
           curDate = tasks.getFormattedDate()
 
           if not doneTag and not cancelledTag and not timestampTag
             tasks.addTag editor, row, attributeMarker, 'timestamp', curDate
           else
-            tasks.updateTag editor, row, attributeMarker, 'done', curDate
-            tasks.updateTag editor, row, attributeMarker, 'cancelled', curDate
-            tasks.updateTag editor, row, attributeMarker, 'timestamp', curDate
+            tasks.updateTag editor, info, attributeMarker, 'done', curDate
+            info = tasks.parseLine editor, row, atom.config.get('tasks')
+            tasks.updateTag editor, info, attributeMarker, 'cancelled', curDate
+            info = tasks.parseLine editor, row, atom.config.get('tasks')
+            tasks.updateTag editor, info, attributeMarker, 'timestamp', curDate
 
   ###*
    * Helper for handling the archiving of
@@ -343,13 +347,14 @@ module.exports =
 
       # 1. Find the archives section, if it exists
 
-      editor.displayBuffer.tokenizedBuffer.tokenizedLines.every (i, ind)->
+      editor.buffer.lines.every (i, ind)->
         # if we already found the archive, no need
         # to parse any more!
         return false if archiveProject
-        hasDone = tasks.getToken i.tokens, tasks.doneSelector
-        hasCancelled = tasks.getToken i.tokens, tasks.cancelledSelector
-        hasArchive = tasks.getToken i.tokens, tasks.archiveSelector
+        info = tasks.parseLine editor, ind, atom.config.get('tasks')
+        hasDone = _.some info.tags, (t) -> t.tagName.value is 'done'
+        hasCancelled = _.some info.tags, (t) -> t.tagName.value is 'cancelled'
+        hasArchive = info.project is 'Archive'
 
         el =
           lineNumber: ind
@@ -395,9 +400,7 @@ module.exports =
       insertPoint = new Point insertRow, 0
       indentation = editor.buildIndentString 1
       completedTasks.forEach (i)->
-        editor.buffer.insert insertPoint,
-          indentation +
-          i.line.text.substring(i.line.firstNonWhitespaceIndex) + '\n'
+        editor.buffer.insert insertPoint, "#{indentation}#{i.line.trim()}\n"
 
       # 4. Copy is completed, start deleting the
       #     copied items
