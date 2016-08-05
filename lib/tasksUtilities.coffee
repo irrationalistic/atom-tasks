@@ -201,15 +201,15 @@ module.exports =
     lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
     projects = []
-    curHeaderLevel = checkLine.indentLevel
+    curHeaderLevel = editor.indentationForBufferRow(lineNumber)
     return projects if lineNumber is 0
     for row in [lineNumber-1..0]
       curLine = lines[row]
-      if curLine.indentLevel < curHeaderLevel
+      if editor.indentationForBufferRow(row) < curHeaderLevel
         if @getToken curLine.tokens, @headerSelector
           projects.push curLine
-          curHeaderLevel = curLine.indentLevel
-        break if curLine.indentLevel is 0
+          curHeaderLevel = editor.indentationForBufferRow(row)
+        break if editor.indentationForBufferRow(row) is 0
     projects
 
 

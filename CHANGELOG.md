@@ -1,3 +1,6 @@
+## 2.6.1
+* Fix for missing indentLevel code
+
 ## 2.6.0
 * Updated after breaking changes:
   * Removed dependency on displayBuffer
