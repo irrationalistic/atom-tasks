@@ -39,6 +39,7 @@ class TaskStatusView extends HTMLElement
     if @checkIsTasks()
       tokenizedLines = @editor.displayBuffer.tokenizedBuffer.tokenizedLines
       info = _.countBy tokenizedLines, (line)->
+        return 'text' if not line
         hasMarker = tasks.getToken line.tokens, tasks.markerSelector
         hasDone = tasks.getToken line.tokens, tasks.doneSelector
         hasCancelled = tasks.getToken line.tokens, tasks.cancelledSelector
