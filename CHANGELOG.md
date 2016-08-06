@@ -1,3 +1,6 @@
+## 2.6.2
+* Fix for error when tasks file is in focus on load
+
 ## 2.6.1
 * Fix for missing indentLevel code
 
