@@ -16,7 +16,7 @@
   {
     'begin': '^([\\s]*)(✔)(?=.*@done)'
     'end': '$'
-    'name': 'tasks.text.done.source.gfm'
+    'name': 'tasks.text.done.md'
     'beginCaptures':
       '2': 'name': 'keyword.tasks.marker'
     'patterns': [
@@ -27,7 +27,7 @@
   {
     'begin': '^([\\s]*)(✘)(?=.*@cancelled)'
     'end': '$'
-    'name': 'tasks.text.cancelled.source.gfm'
+    'name': 'tasks.text.cancelled.md'
     'beginCaptures':
       '2': 'name': 'keyword.tasks.marker'
     'patterns': [
@@ -38,13 +38,13 @@
 
   {
     'match': '^([\\s]*)(☐)((?:(?!:$).)*)$'
-    'name': 'tasks.text.source.gfm'
+    'name': 'tasks.text.md'
     'captures':
       '2': 'name': 'keyword.tasks.marker'
       '3':
         'patterns': [
           {'include': '#attribute'}
-          {'include': 'source.gfm'}
+          {'include': 'text.md'}
           {'include': 'text.hyperlink'}
         ]
   }

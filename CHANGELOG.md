@@ -1,3 +1,6 @@
+## 2.6.3
+* Fix for markdown in task items
+
 ## 2.6.2
 * Fix for error when tasks file is in focus on load
 
