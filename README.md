@@ -46,5 +46,5 @@ Based off the awesome sublime text plugin https://github.com/aziz/PlainTasks
 * **ctrl-shift-s:** add/update timestamp for current task
 
 ### Other Methods
-* **Convert to Task:** Converts a non-task line to a task
-* **Update Timestamps:** Attempt to convert cancelled and done tag timestamps to match the settings format
+* **ctrl-shift-l:** Converts a non-task line to a task
+* **ctrl-shift-s:** Attempt to convert cancelled and done tag timestamps to match the settings format
