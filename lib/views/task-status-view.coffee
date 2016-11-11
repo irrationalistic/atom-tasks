@@ -21,8 +21,8 @@ class TaskStatusView extends HTMLElement
     @changeSub = @getActiveTextEditor()?.onDidStopChanging =>
       @updateStatus()
     @tokenizeSub?.dispose()
-    @tokenizeSub = @getActiveTextEditor()?.displayBuffer
-      .tokenizedBuffer.onDidTokenize => @updateStatus()
+    @tokenizeSub = @getActiveTextEditor()?.tokenizedBuffer
+      .onDidTokenize => @updateStatus()
     @updateStatus()
 
   getActiveTextEditor: ->
@@ -37,7 +37,7 @@ class TaskStatusView extends HTMLElement
 
   updateStatus: ->
     if @checkIsTasks()
-      tokenizedLines = @editor.displayBuffer.tokenizedBuffer.tokenizedLines
+      tokenizedLines = @editor.tokenizedBuffer.tokenizedLines
       info = _.countBy tokenizedLines, (line)->
         return 'text' if not line
         hasMarker = tasks.getToken line.tokens, tasks.markerSelector

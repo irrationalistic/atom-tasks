@@ -268,7 +268,7 @@ module.exports =
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
-        screenLine = editor.displayBuffer.tokenizedBuffer.tokenizedLines[row]
+        screenLine = editor.tokenizedBuffer.tokenizedLines[row]
         # These tags will receive updated timestamps
         # based on existing ones
         tagsToUpdate = ['done', 'cancelled', 'timestamp']
