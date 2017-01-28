@@ -1,3 +1,6 @@
+## 2.6.5
+* Fix for syntax warning. Thanks to @blimmer!
+
 ## 2.6.4
 * Fix for deprecated displayBuffer (#63)
 
