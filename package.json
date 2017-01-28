@@ -13,7 +13,7 @@
   "repository": "https://github.com/irrationalistic/atom-tasks",
   "license": "MIT",
   "engines": {
-    "atom": ">0.50.0"
+    "atom": ">= 1.13"
   },
   "dependencies": {
     "moment": "~2.6.0",
