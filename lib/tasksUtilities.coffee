@@ -209,7 +209,11 @@ module.exports =
         if @getToken curLine.tokens, @headerSelector
           projects.push curLine
           curHeaderLevel = editor.indentationForBufferRow(row)
-        break if editor.indentationForBufferRow(row) is 0
+
+        rowIsZero = editor.indentationForBufferRow(row) is 0
+        rowIsEmpty = editor.isBufferRowBlank(row)
+          
+        break if rowIsZero and not rowIsEmpty
     projects
 
 
