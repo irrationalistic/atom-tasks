@@ -186,7 +186,7 @@ module.exports =
    * @param {String} toFind     CSS-like selector to search for
   ###
   getLinesByToken: (editor, toFind)->
-    editor.displayBuffer.tokenizedBuffer.tokenizedLines.filter (i)=>
+    editor.tokenizedBuffer.tokenizedLines.filter (i)=>
       @getToken i.tokens, toFind
 
 
@@ -198,7 +198,7 @@ module.exports =
    * @param {Number} lineNumber   Line number to start at
   ###
   getProjects: (editor, lineNumber)->
-    lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
+    lines = editor.tokenizedBuffer.tokenizedLines
     checkLine = lines[lineNumber]
     projects = []
     curHeaderLevel = editor.indentationForBufferRow(lineNumber)
