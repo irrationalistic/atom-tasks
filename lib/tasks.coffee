@@ -347,7 +347,7 @@ module.exports =
 
       # 1. Find the archives section, if it exists
 
-      editor.buffer.lines.every (i, ind)->
+      editor.buffer.getLines().every (i, ind)->
         # if we already found the archive, no need
         # to parse any more!
         return false if archiveProject
@@ -380,7 +380,7 @@ module.exports =
         # Before adding the final archive section,
         # we should clear out the empty lines at
         # the end of the file.
-        for line, i in editor.buffer.lines by -1
+        for line, i in editor.buffer.getLines() by -1
           if editor.buffer.isRowBlank i
             # remove the line
             editor.buffer.deleteRow i
