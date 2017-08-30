@@ -1,3 +1,6 @@
+## 2.6.7
+* Fixes #78 (thanks @stefanthaler and @Guerillero)
+
 ## 2.6.6
 * Fixes #63 where I missed the calls in the util file
 * Support empty lines when calculating projects (#69)
