@@ -1,10 +1,6 @@
 {TouchBar} = require('remote')
 {TouchBarLabel, TouchBarButton, TouchBarSpacer} = TouchBar
 
-spinning = false
-
-# todo: credit
-
 module.exports =
   update: (info, callback) ->
     if not TouchBar
@@ -24,7 +20,6 @@ module.exports =
     if isTask
       completed = info.marker.value in [config.completeMarker, config.cancelledMarker]
 
-    # todo: "convert" also if non-empty non-task
     buttons.push new TouchBarButton({
         label: config.baseMarker + " New",
         backgroundColor: '#5293d8',
