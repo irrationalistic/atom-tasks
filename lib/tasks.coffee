@@ -28,6 +28,8 @@ module.exports =
       type: 'string', default: '＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿'
     attributeMarker:
       type: 'string', default: '@'
+    useTouchbar:
+      type: 'boolean', default: false
 
 
 
@@ -120,7 +122,7 @@ module.exports =
   ###
   consumeStatusBar: (statusBar) ->
     @taskStatus = new TaskStatusView()
-    @taskStatus.initialize(@completeTask, @newTask, @cancelTask)
+    @taskStatus.initialize(@completeTask, @newTask, @cancelTask, @convertToTask)
     @statusBarTile = statusBar.addLeftTile(item: @taskStatus, priority: 100)
 
 

@@ -4,16 +4,27 @@ _ = require 'underscore'
 
 
 class TaskStatusView extends HTMLElement
-  initialize: (completeTask, createTask, cancelTask)->
+  initialize: (completeTask, createTask, cancelTask, convertToTask)->
     @classList.add('task-status', 'inline-block')
     @style.display = 'none'
     @completeTask = completeTask
     @createTask = createTask
     @cancelTask = cancelTask
+    @convertToTask = convertToTask
     @lastLine = -1
 
+    config = atom.config.get('tasks')
+    @useTouchbar = config.useTouchbar
+
+    _this = this
+
+    atom.config.onDidChange 'tasks.useTouchbar', ({newValue, oldValue}) ->
+      console.log("changed to " + newValue)
+      _this.useTouchbar = newValue
+      _this.updateTouchbar()
+
     @activeItemSub = atom.workspace.onDidChangeActivePaneItem =>
-      @subscribeToActiveTextEditor()
+      _this.subscribeToActiveTextEditor()
 
     @subscribeToActiveTextEditor()
 
@@ -83,7 +94,8 @@ class TaskStatusView extends HTMLElement
         @updateTouchbar()
 
   updateTouchbar: ->
-    if @checkIsTasks()
+    console.log("update: " + @useTouchbar)
+    if @useTouchbar && @checkIsTasks()
       pt = @editor.getCursorBufferPosition()
       config = atom.config.get('tasks')
       linf = tasks.parseLine @editor, pt.row, config
@@ -93,6 +105,7 @@ class TaskStatusView extends HTMLElement
           when "complete" then @completeTask()
           when "new" then @createTask()
           when "cancel" then @cancelTask()
+          when "convert" then @convertToTask()
     else
       touchbar.update({}, null)
 

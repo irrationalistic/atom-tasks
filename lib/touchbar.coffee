@@ -8,6 +8,10 @@ module.exports =
 
     window = atom.getCurrentWindow()
 
+    if not info.type
+      window.setTouchBar(null)
+      return
+
     if ! @checkIsTasks()
       window.setTouchBar(null)
       return
@@ -42,6 +46,14 @@ module.exports =
         backgroundColor: '#CD8E00',
         click: () =>
           callback "cancel"
+      })
+      buttons.push new TouchBarSpacer({size: 'small'})
+
+    if ! isTask && /\S/.test(info.line)
+      buttons.push new TouchBarButton({
+        label: config.baseMarker + " Convert to Task",
+        click: () =>
+          callback "convert"
       })
       buttons.push new TouchBarSpacer({size: 'small'})
 
