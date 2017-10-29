@@ -4,14 +4,16 @@ _ = require 'underscore'
 
 
 class TaskStatusView extends HTMLElement
-  initialize: (completeTask, createTask, cancelTask, convertToTask)->
+  initialize: (completeTask, createTask, cancelTask, convertToTask, archiveTasks)->
     @classList.add('task-status', 'inline-block')
     @style.display = 'none'
     @completeTask = completeTask
     @createTask = createTask
     @cancelTask = cancelTask
     @convertToTask = convertToTask
+    @archiveTasks = archiveTasks
     @lastLine = -1
+    @wantArchive = false
 
     config = atom.config.get('tasks')
     @useTouchbar = config.useTouchbar
@@ -19,7 +21,6 @@ class TaskStatusView extends HTMLElement
     _this = this
 
     atom.config.onDidChange 'tasks.useTouchbar', ({newValue, oldValue}) ->
-      console.log("changed to " + newValue)
       _this.useTouchbar = newValue
       _this.updateTouchbar()
 
@@ -78,7 +79,6 @@ class TaskStatusView extends HTMLElement
         return 'task' if hasMarker
         return 'text'
 
-
       _.defaults info,
         done: 0, cancelled: 0
         project: 0, task: 0
@@ -89,16 +89,17 @@ class TaskStatusView extends HTMLElement
       completed = '-' if isNaN completed
       total = '-' if isNaN total
       @textContent = "(#{completed}/#{total})"
+      @wantArchive = completed > 0
 
       if info.task > 0
         @updateTouchbar()
 
   updateTouchbar: ->
-    console.log("update: " + @useTouchbar)
     if @useTouchbar && @checkIsTasks()
       pt = @editor.getCursorBufferPosition()
       config = atom.config.get('tasks')
       linf = tasks.parseLine @editor, pt.row, config
+      linf.wantArchive = @wantArchive
 
       touchbar.update linf, (action) =>
         switch action
@@ -106,6 +107,7 @@ class TaskStatusView extends HTMLElement
           when "new" then @createTask()
           when "cancel" then @cancelTask()
           when "convert" then @convertToTask()
+          when "archive" then @archiveTasks()
     else
       touchbar.update({}, null)
 

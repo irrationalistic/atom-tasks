@@ -57,6 +57,14 @@ module.exports =
       })
       buttons.push new TouchBarSpacer({size: 'small'})
 
+    if info.wantArchive
+      buttons.push new TouchBarButton({
+        label: "Archive",
+        click: () =>
+          callback "archive"
+      })
+      buttons.push new TouchBarSpacer({size: 'small'})
+
     touchBar = new TouchBar({items: buttons})
 
     window.setTouchBar(touchBar)
