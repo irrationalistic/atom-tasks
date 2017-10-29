@@ -16,7 +16,7 @@
   {
     'begin': '^([\\s]*)(✔)(?=.*@done)'
     'end': '$'
-    'name': 'tasks.text.done.md'
+    'name': 'tasks.text.done.source.gfm'
     'beginCaptures':
       '2': 'name': 'keyword.tasks.marker'
     'patterns': [
@@ -27,7 +27,7 @@
   {
     'begin': '^([\\s]*)(✘)(?=.*@cancelled)'
     'end': '$'
-    'name': 'tasks.text.cancelled.md'
+    'name': 'tasks.text.cancelled.source.gfm'
     'beginCaptures':
       '2': 'name': 'keyword.tasks.marker'
     'patterns': [
