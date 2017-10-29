@@ -1,10 +1,13 @@
 tasks = require '../tasksUtilities'
+touchbar = require '../touchbar'
 _ = require 'underscore'
 
+
 class TaskStatusView extends HTMLElement
-  initialize: ->
+  initialize: (completeTask)->
     @classList.add('task-status', 'inline-block')
     @style.display = 'none'
+    @completeTask = completeTask
 
     @activeItemSub = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveTextEditor()
@@ -35,6 +38,9 @@ class TaskStatusView extends HTMLElement
     @style.display = 'none'
     false
 
+
+
+  # need to call on movement (at least for touchbar)
   updateStatus: ->
     if @checkIsTasks()
       tokenizedLines = @editor.tokenizedBuffer.tokenizedLines
@@ -62,6 +68,15 @@ class TaskStatusView extends HTMLElement
       completed = '-' if isNaN completed
       total = '-' if isNaN total
       @textContent = "(#{completed}/#{total})"
+
+      if info.task > 0
+        pt = @editor.getCursorBufferPosition()
+        config = atom.config.get('tasks')
+        linf = tasks.parseLine @editor, pt.row, config
+
+        touchbar.update linf, (complete) =>
+          @completeTask()
+
 
 module.exports = document.registerElement 'status-bar-tasks',
   prototype: TaskStatusView.prototype, extends: 'div'

@@ -120,7 +120,7 @@ module.exports =
   ###
   consumeStatusBar: (statusBar) ->
     @taskStatus = new TaskStatusView()
-    @taskStatus.initialize()
+    @taskStatus.initialize(@completeTask)
     @statusBarTile = statusBar.addLeftTile(item: @taskStatus, priority: 100)
 
 
