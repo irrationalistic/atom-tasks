@@ -4,10 +4,13 @@ _ = require 'underscore'
 
 
 class TaskStatusView extends HTMLElement
-  initialize: (completeTask)->
+  initialize: (completeTask, createTask, cancelTask)->
     @classList.add('task-status', 'inline-block')
     @style.display = 'none'
     @completeTask = completeTask
+    @createTask = createTask
+    @cancelTask = cancelTask
+    @lastLine = -1
 
     @activeItemSub = atom.workspace.onDidChangeActivePaneItem =>
       @subscribeToActiveTextEditor()
@@ -18,6 +21,7 @@ class TaskStatusView extends HTMLElement
     @activeItemSub.dispose()
     @changeSub?.dispose()
     @tokenizeSub?.dispose()
+    @moveSub?.dispose()
 
   subscribeToActiveTextEditor: ->
     @changeSub?.dispose()
@@ -26,7 +30,14 @@ class TaskStatusView extends HTMLElement
     @tokenizeSub?.dispose()
     @tokenizeSub = @getActiveTextEditor()?.tokenizedBuffer
       .onDidTokenize => @updateStatus()
+    @moveSub?.dispose()
+    @moveSub = @getActiveTextEditor()?.onDidChangeCursorPosition =>
+      pos = @getActiveTextEditor()?.getCursorBufferPosition()
+      if pos.row != @lastLine
+        @lastLine = pos.row
+        @updateTouchbar()
     @updateStatus()
+    @updateTouchbar()
 
   getActiveTextEditor: ->
     @editor = atom.workspace.getActiveTextEditor()
@@ -37,7 +48,6 @@ class TaskStatusView extends HTMLElement
       return true
     @style.display = 'none'
     false
-
 
 
   # need to call on movement (at least for touchbar)
@@ -70,12 +80,21 @@ class TaskStatusView extends HTMLElement
       @textContent = "(#{completed}/#{total})"
 
       if info.task > 0
-        pt = @editor.getCursorBufferPosition()
-        config = atom.config.get('tasks')
-        linf = tasks.parseLine @editor, pt.row, config
+        @updateTouchbar()
 
-        touchbar.update linf, (complete) =>
-          @completeTask()
+  updateTouchbar: ->
+    if @checkIsTasks()
+      pt = @editor.getCursorBufferPosition()
+      config = atom.config.get('tasks')
+      linf = tasks.parseLine @editor, pt.row, config
+
+      touchbar.update linf, (action) =>
+        switch action
+          when "complete" then @completeTask()
+          when "new" then @createTask()
+          when "cancel" then @cancelTask()
+    else
+      touchbar.update({}, null)
 
 
 module.exports = document.registerElement 'status-bar-tasks',

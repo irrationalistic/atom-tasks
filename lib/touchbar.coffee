@@ -3,37 +3,58 @@
 
 spinning = false
 
-      # _.defaults info,
-      #   done: 0, cancelled: 0
-      #   project: 0, task: 0
-      #   text: 0
-
-      # todo: credit
+# todo: credit
 
 module.exports =
   update: (info, callback) ->
     if not TouchBar
       return
 
-    touchable = info.type == 'task'
-
-    if touchable
-      config = atom.config.get('tasks')
-      touchable = (info.marker != config.completeMarker) && (info.marker != config.cancelledMarker)
-
-    if touchable
-      button = new TouchBarButton({
-        label: config.completeMarker + " Complete",
-        backgroundColor: '#353232',
-        click: () =>
-          callback true
-      })
-      touchBar = new TouchBar([
-        button,
-        new TouchBarSpacer({size: 'small'}),
-      ])
-    else
-      touchBar = null
-
     window = atom.getCurrentWindow()
+
+    if ! @checkIsTasks()
+      window.setTouchBar(null)
+      return
+
+    config = atom.config.get('tasks')
+    buttons = []
+
+    isTask = info.type == 'task'
+
+    if isTask
+      completed = info.marker.value in [config.completeMarker, config.cancelledMarker]
+
+    # todo: "convert" also if non-empty non-task
+    buttons.push new TouchBarButton({
+        label: config.baseMarker + " New",
+        backgroundColor: '#5293d8',
+        click: () =>
+          callback "new"
+      })
+    buttons.push new TouchBarSpacer({size: 'small'})
+
+    if isTask && ! completed
+      buttons.push new TouchBarButton({
+        label: config.completeMarker + " Complete",
+        backgroundColor: '#45A815',
+        click: () =>
+          callback "complete"
+      })
+      buttons.push new TouchBarSpacer({size: 'small'})
+
+      buttons.push new TouchBarButton({
+        label: config.cancelledMarker + " Cancel",
+        backgroundColor: '#CD8E00',
+        click: () =>
+          callback "cancel"
+      })
+      buttons.push new TouchBarSpacer({size: 'small'})
+
+    touchBar = new TouchBar({items: buttons})
+
     window.setTouchBar(touchBar)
+
+
+  checkIsTasks: ->
+    editor = atom.workspace.getActiveTextEditor()
+    return editor?.getGrammar().name is 'Tasks'
