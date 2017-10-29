@@ -1,6 +1,7 @@
 tasks = require '../tasksUtilities'
 _ = require 'underscore'
 
+
 class TaskStatusView extends HTMLElement
   initialize: ->
     @classList.add('task-status', 'inline-block')
@@ -29,11 +30,13 @@ class TaskStatusView extends HTMLElement
     @editor = atom.workspace.getActiveTextEditor()
 
   checkIsTasks: ->
-    if @editor?.getGrammar().name is 'Tasks'
+    if tasks.checkIsTasks()
       @style.display = ''
       return true
+
     @style.display = 'none'
     false
+
 
   updateStatus: ->
     if @checkIsTasks()
@@ -51,7 +54,6 @@ class TaskStatusView extends HTMLElement
         return 'task' if hasMarker
         return 'text'
 
-
       _.defaults info,
         done: 0, cancelled: 0
         project: 0, task: 0
@@ -62,6 +64,7 @@ class TaskStatusView extends HTMLElement
       completed = '-' if isNaN completed
       total = '-' if isNaN total
       @textContent = "(#{completed}/#{total})"
+
 
 module.exports = document.registerElement 'status-bar-tasks',
   prototype: TaskStatusView.prototype, extends: 'div'
