@@ -1,6 +1,5 @@
-{Point, Range} = require 'atom'
+{Point} = require 'atom'
 _ = require 'underscore'
-moment = require 'moment'
 CSON = require atom.config.resourcePath + "/node_modules/season/lib/cson.js"
 Grammar = require atom.config.resourcePath +
   "/node_modules/first-mate/lib/grammar.js"
@@ -270,7 +269,6 @@ module.exports =
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
-        screenLine = editor.tokenizedBuffer.tokenizedLines[row]
         # These tags will receive updated timestamps
         # based on existing ones
         tagsToUpdate = ['done', 'cancelled', 'timestamp']

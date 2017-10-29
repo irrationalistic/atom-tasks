@@ -199,7 +199,6 @@ module.exports =
   ###
   getProjects: (editor, lineNumber)->
     lines = editor.tokenizedBuffer.tokenizedLines
-    checkLine = lines[lineNumber]
     projects = []
     curHeaderLevel = editor.indentationForBufferRow(lineNumber)
     return projects if lineNumber is 0
@@ -212,7 +211,7 @@ module.exports =
 
         rowIsZero = editor.indentationForBufferRow(row) is 0
         rowIsEmpty = editor.isBufferRowBlank(row)
-          
+
         break if rowIsZero and not rowIsEmpty
     projects
 

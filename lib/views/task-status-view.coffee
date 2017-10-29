@@ -22,7 +22,9 @@ class TaskStatusView extends HTMLElement
 
     atom.config.onDidChange 'tasks.useTouchbar', ({newValue, oldValue}) ->
       _this.useTouchbar = newValue
-      _this.updateTouchbar()
+
+      if newValue != oldValue
+        _this.updateTouchbar()
 
     @activeItemSub = atom.workspace.onDidChangeActivePaneItem =>
       _this.subscribeToActiveTextEditor()
