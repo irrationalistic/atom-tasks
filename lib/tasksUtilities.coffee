@@ -63,7 +63,7 @@ module.exports =
     # lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
     # checkLine = lines[lineNumber]
     checkLine = editor.buffer.lineForRow lineNumber
-    attributeRX = new RegExp "( ?)(\\#{attributeMarker}[ ]?(([\\w]+)(\\((.*?)\\))?))", 'gi'
+    attributeRX = new RegExp "( ?)(\\#{attributeMarker}[ ]?(([\\w]+)(\\((.*?[^\\\\])\\))?))", 'gi'
     while match = attributeRX.exec checkLine
       sPt = new Point lineNumber, match.index
       ePt = new Point lineNumber, match.index + match[0].length
@@ -123,11 +123,13 @@ module.exports =
   addTag: (editor, lineNumber, attributeMarker, tagName, tagValue)->
     point = new Point lineNumber, editor.buffer.lineLengthForRow lineNumber
     if tagValue
-      editor.buffer.insert point, " #{attributeMarker}#{tagName}(#{tagValue})"
+      safeTagValue = @escapeTagValue tagValue
+      editor.buffer.insert point, " #{attributeMarker}#{tagName}(#{safeTagValue})"
     else
       editor.buffer.insert point, " #{attributeMarker}#{tagName}"
 
-
+  escapeTagValue: (tagValue) ->
+    tagValue.replace(/\(/g, "\\(").replace(/\)/g, "\\)")
 
   ###*
    * Helper for removing a tag by name
@@ -199,7 +201,6 @@ module.exports =
   ###
   getProjects: (editor, lineNumber)->
     lines = editor.tokenizedBuffer.tokenizedLines
-    checkLine = lines[lineNumber]
     projects = []
     curHeaderLevel = editor.indentationForBufferRow(lineNumber)
     return projects if lineNumber is 0
@@ -212,7 +213,7 @@ module.exports =
 
         rowIsZero = editor.indentationForBufferRow(row) is 0
         rowIsEmpty = editor.isBufferRowBlank(row)
-          
+
         break if rowIsZero and not rowIsEmpty
     projects
 
