@@ -180,3 +180,29 @@ describe 'Tasks', ->
         it 'tokenizes a cancelled task', ->
           tokens = grammar.tokenizeLines('[-] text @cancelled()')
           expect(tokens[0][3]).toEqual value: 'cancelled', scopes: [cancelledTokens..., 'tasks.attribute.cancelled', 'tasks.attribute-name']
+
+  describe 'Escape', ->
+    beforeEach ->
+      editor.setText 'Project with (parens):\n  ☐ An incomplete task'
+      editor.setCursorBufferPosition [1,0]
+
+    describe 'should escape tag values', ->
+      it 'adds a project attribute', ->
+        Tasks.completeTask()
+
+        projectTag = tasksUtilities.getTag editor, 1, 'project', '@'
+
+        expect(projectTag).toBeDefined()
+        expect(projectTag.tagValue.value).toEqual("Project with \\(parens\\)")
+
+    describe 'should discard parenthesized done tags', ->
+      it 'adds a project attribute', ->
+        Tasks.completeTask()
+
+        projectTag = tasksUtilities.getTag editor, 1, 'project', '@'
+
+        # undo completion
+        Tasks.completeTask()
+
+        line = editor.getBuffer().lineForRow 1
+        expect(line).toMatch(/☐\s+An incomplete task\s*$/)
