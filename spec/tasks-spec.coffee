@@ -1,15 +1,18 @@
+path = require 'path'
 Tasks = require '../lib/tasks'
 tasksUtilities = require '../lib/tasksUtilities'
-[editor, buffer, workspaceElement] = []
+[editor, buffer, workspaceElement, fixturesPath] = []
 
 find = (selector)->
   workspaceElement.querySelectorAll "body /deep/ #{selector}"
 
 describe 'Tasks', ->
-###
   beforeEach ->
+    fixturesPath = __dirname
     waitsForPromise ->
-      atom.workspace.open('sample.todo').then (o) -> editor = o
+      sampleFileName = path.join(fixturesPath, 'sample.todo')
+      atom.workspace.open(sampleFileName).then (o) ->
+        editor = o
     runs ->
       buffer = editor.getBuffer()
     waitsForPromise ->
@@ -19,6 +22,30 @@ describe 'Tasks', ->
       workspaceElement = atom.views.getView atom.workspace
       jasmine.attachToDOM workspaceElement
 
+  describe 'should escape tag values', ->
+    it 'adds a project attribute', ->
+      editor.setCursorBufferPosition [7,0]
+      Tasks.completeTask()
+
+      projectTag = tasksUtilities.getTag editor, 7, 'project', '@'
+
+      expect(projectTag).toBeDefined()
+      expect(projectTag.tagValue.value).toEqual("Project with \\(parens\\)")
+
+  describe 'should discard parenthesized done tags', ->
+    it 'adds a project attribute', ->
+      editor.setCursorBufferPosition [7,0]
+      Tasks.completeTask()
+
+      projectTag = tasksUtilities.getTag editor, 7, 'project', '@'
+
+      # undo completion
+      Tasks.completeTask()
+
+      line = buffer.lineForRow 7
+      expect(line).toMatch(/☐\s+An incomplete task\s*$/)
+
+###
   describe 'grammar should load', ->
     it 'loads', ->
       grammar = atom.grammars.grammarForScopeName 'source.todo'

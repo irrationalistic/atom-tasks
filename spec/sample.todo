@@ -3,3 +3,6 @@ My Project:
   ✔ A second task @tag1 things @done(2015-04-10 20:49) @project(My Project) ☐ marker mid task
   not a real task
   ✘ A cancelled task @cancelled(2015-04-10 20:49) @project(My Project)
+
+Project with (parens):
+  ☐ An incomplete task
