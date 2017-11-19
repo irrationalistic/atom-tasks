@@ -5,6 +5,7 @@ Grammar = require atom.config.resourcePath +
   "/node_modules/first-mate/lib/grammar.js"
 tasks = require './tasksUtilities'
 TaskStatusView = require './views/task-status-view'
+touchbar = require './touchbar'
 
 # Store the current settings for the markers
 marker = completeMarker = cancelledMarker = archiveSeparator = attributeMarker = ''
@@ -72,6 +73,22 @@ module.exports =
       "tasks:convert-to-task": => @convertToTask()
       "tasks:set-timestamp": => @setTimestamp()
 
+    config = atom.config.get('tasks')
+    @useTouchbar = config.useTouchbar
+
+    _this = this
+
+    atom.config.onDidChange 'tasks.useTouchbar', ({newValue, oldValue}) ->
+      _this.useTouchbar = newValue
+
+      if newValue != oldValue
+        _this.updateTouchbar()
+
+    @activeItemSub = atom.workspace.onDidChangeActivePaneItem =>
+      _this.subscribeToActiveTextEditor()
+
+    @subscribeToActiveTextEditor()
+
 
 
   ###*
@@ -124,6 +141,9 @@ module.exports =
     @taskStatus.initialize(@completeTask, @newTask, @cancelTask, @convertToTask, @tasksArchive)
     @statusBarTile = statusBar.addLeftTile(item: @taskStatus, priority: 100)
 
+  getActiveTextEditor: ->
+    @editor = atom.workspace.getActiveTextEditor()
+
 
   ###*
    * Handle deactivation of the plugin. Remove
@@ -132,7 +152,41 @@ module.exports =
   deactivate: ->
     @statusBarTile?.destroy()
     @statusBarTile = null
+    @activeItemSub.dispose()
+    @moveSub?.dispose()
 
+  ###*
+   * Watch updates on our editor-in-progress
+  ###
+  subscribeToActiveTextEditor: ->
+    @moveSub?.dispose()
+    @moveSub = @getActiveTextEditor()?.onDidChangeCursorPosition =>
+      pos = @getActiveTextEditor()?.getCursorBufferPosition()
+      if pos.row != @lastLine
+        @lastLine = pos.row
+        @updateTouchbar()
+    @updateTouchbar()
+
+
+  ###*
+   * Update our active buttons based on the current line.
+  ###
+  updateTouchbar: ->
+    if @useTouchbar && tasks.checkIsTasks()
+      pt = @editor.getCursorBufferPosition()
+      config = atom.config.get('tasks')
+      linf = tasks.parseLine @editor, pt.row, config
+      linf.wantArchive = @wantArchive
+
+      touchbar.update linf, (action) =>
+        switch action
+          when "complete" then @completeTask()
+          when "new" then @createTask()
+          when "cancel" then @cancelTask()
+          when "convert" then @convertToTask()
+          when "archive" then @archiveTasks()
+    else
+      touchbar.update({}, null)
 
 
   ###*

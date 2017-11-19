@@ -1,3 +1,5 @@
+tasks = require './tasksUtilities'
+
 {TouchBar} = require('remote')
 {TouchBarButton, TouchBarSpacer} = TouchBar
 
@@ -8,7 +10,7 @@ module.exports =
 
     window = atom.getCurrentWindow()
 
-    if not info.type || not @checkIsTasks()
+    if not info.type || not tasks.checkIsTasks()
       window.setTouchBar(null)
       return
 
@@ -53,7 +55,3 @@ module.exports =
       opts.backgroundColor = bgcolor
 
     return new TouchBarButton(opts)
-
-  checkIsTasks: ->
-    editor = atom.workspace.getActiveTextEditor()
-    return editor?.getGrammar().name is 'Tasks'

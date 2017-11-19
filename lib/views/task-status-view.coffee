@@ -1,5 +1,4 @@
 tasks = require '../tasksUtilities'
-touchbar = require '../touchbar'
 _ = require 'underscore'
 
 
@@ -15,16 +14,6 @@ class TaskStatusView extends HTMLElement
     @lastLine = -1
     @wantArchive = false
 
-    config = atom.config.get('tasks')
-    @useTouchbar = config.useTouchbar
-
-    _this = this
-
-    atom.config.onDidChange 'tasks.useTouchbar', ({newValue, oldValue}) ->
-      _this.useTouchbar = newValue
-
-      if newValue != oldValue
-        _this.updateTouchbar()
 
     @activeItemSub = atom.workspace.onDidChangeActivePaneItem =>
       _this.subscribeToActiveTextEditor()
@@ -35,7 +24,6 @@ class TaskStatusView extends HTMLElement
     @activeItemSub.dispose()
     @changeSub?.dispose()
     @tokenizeSub?.dispose()
-    @moveSub?.dispose()
 
   subscribeToActiveTextEditor: ->
     @changeSub?.dispose()
@@ -44,27 +32,20 @@ class TaskStatusView extends HTMLElement
     @tokenizeSub?.dispose()
     @tokenizeSub = @getActiveTextEditor()?.tokenizedBuffer
       .onDidTokenize => @updateStatus()
-    @moveSub?.dispose()
-    @moveSub = @getActiveTextEditor()?.onDidChangeCursorPosition =>
-      pos = @getActiveTextEditor()?.getCursorBufferPosition()
-      if pos.row != @lastLine
-        @lastLine = pos.row
-        @updateTouchbar()
     @updateStatus()
-    @updateTouchbar()
 
   getActiveTextEditor: ->
     @editor = atom.workspace.getActiveTextEditor()
 
   checkIsTasks: ->
-    if @editor?.getGrammar().name is 'Tasks'
+    if tasks.checkIsTasks()
       @style.display = ''
       return true
+
     @style.display = 'none'
     false
 
 
-  # need to call on movement (at least for touchbar)
   updateStatus: ->
     if @checkIsTasks()
       tokenizedLines = @editor.tokenizedBuffer.tokenizedLines
@@ -92,26 +73,6 @@ class TaskStatusView extends HTMLElement
       total = '-' if isNaN total
       @textContent = "(#{completed}/#{total})"
       @wantArchive = completed > 0
-
-      if info.task > 0
-        @updateTouchbar()
-
-  updateTouchbar: ->
-    if @useTouchbar && @checkIsTasks()
-      pt = @editor.getCursorBufferPosition()
-      config = atom.config.get('tasks')
-      linf = tasks.parseLine @editor, pt.row, config
-      linf.wantArchive = @wantArchive
-
-      touchbar.update linf, (action) =>
-        switch action
-          when "complete" then @completeTask()
-          when "new" then @createTask()
-          when "cancel" then @cancelTask()
-          when "convert" then @convertToTask()
-          when "archive" then @archiveTasks()
-    else
-      touchbar.update({}, null)
 
 
 module.exports = document.registerElement 'status-bar-tasks',
