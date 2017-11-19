@@ -138,7 +138,7 @@ module.exports =
   ###
   consumeStatusBar: (statusBar) ->
     @taskStatus = new TaskStatusView()
-    @taskStatus.initialize(@completeTask, @newTask, @cancelTask, @convertToTask, @tasksArchive)
+    @taskStatus.initialize()
     @statusBarTile = statusBar.addLeftTile(item: @taskStatus, priority: 100)
 
   getActiveTextEditor: ->
@@ -352,6 +352,7 @@ module.exports =
           # Only set the marker if this isn't
           # already a task or header.
           tasks.setMarker editor, info, marker
+    @updateTouchbar()
 
 
   ###*

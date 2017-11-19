@@ -3,20 +3,12 @@ _ = require 'underscore'
 
 
 class TaskStatusView extends HTMLElement
-  initialize: (completeTask, createTask, cancelTask, convertToTask, archiveTasks)->
+  initialize: ->
     @classList.add('task-status', 'inline-block')
     @style.display = 'none'
-    @completeTask = completeTask
-    @createTask = createTask
-    @cancelTask = cancelTask
-    @convertToTask = convertToTask
-    @archiveTasks = archiveTasks
-    @lastLine = -1
-    @wantArchive = false
-
 
     @activeItemSub = atom.workspace.onDidChangeActivePaneItem =>
-      _this.subscribeToActiveTextEditor()
+      @subscribeToActiveTextEditor()
 
     @subscribeToActiveTextEditor()
 
@@ -72,7 +64,6 @@ class TaskStatusView extends HTMLElement
       completed = '-' if isNaN completed
       total = '-' if isNaN total
       @textContent = "(#{completed}/#{total})"
-      @wantArchive = completed > 0
 
 
 module.exports = document.registerElement 'status-bar-tasks',
