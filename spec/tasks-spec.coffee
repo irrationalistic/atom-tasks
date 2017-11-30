@@ -5,6 +5,7 @@ tasksUtilities = require '../lib/tasksUtilities'
 baseTokens = ['source.todo', 'tasks.text']
 doneTokens = ['source.todo', 'tasks.text.done']
 cancelledTokens = ['source.todo', 'tasks.text.cancelled']
+nowStamp = ''
 
 describe 'Tasks', ->
   beforeEach ->
@@ -16,6 +17,7 @@ describe 'Tasks', ->
       grammar = atom.grammars.grammarForScopeName 'source.todo'
       editor = atom.workspace.getActiveTextEditor()
       editor.setGrammar grammar
+      nowStamp = tasksUtilities.getFormattedDate(1000)
 
   describe 'grammar should load', ->
     it 'loads', ->
@@ -84,13 +86,13 @@ describe 'Tasks', ->
       Tasks.setTimestamp()
       line = editor.tokenizedBuffer.tokenizedLines[0]
       expect(line.tokens[4]).toEqual value: 'timestamp', scopes: [baseTokens..., 'tasks.attribute.timestamp', 'tasks.attribute-name']
-      expect(line.tokens[6]).toEqual value: '1969-12-31 16:00', scopes: [baseTokens..., 'tasks.attribute.timestamp', 'tasks.attribute-value']
+      expect(line.tokens[6]).toEqual value: nowStamp, scopes: [baseTokens..., 'tasks.attribute.timestamp', 'tasks.attribute-value']
 
     it 'should update a timestamp', ->
       editor.setText '  ✔ item 1 @done(1970-1-1 0:00)'
       Tasks.setTimestamp()
       line = editor.tokenizedBuffer.tokenizedLines[0]
-      expect(line.tokens[6]).toEqual value: '1969-12-31 16:00', scopes: [doneTokens..., 'tasks.attribute.done', 'tasks.attribute-value']
+      expect(line.tokens[6]).toEqual value: nowStamp, scopes: [doneTokens..., 'tasks.attribute.done', 'tasks.attribute-value']
 
     it 'should convert to task', ->
       editor.setText 'item'
@@ -103,7 +105,7 @@ describe 'Tasks', ->
       editor.setText 'item'
       Tasks.convertToTask()
       line = editor.tokenizedBuffer.tokenizedLines[0]
-      expect(line.tokens[5]).toEqual value: '1969-12-31 16:00', scopes: [baseTokens..., 'tasks.attribute.timestamp', 'tasks.attribute-value']
+      expect(line.tokens[5]).toEqual value: nowStamp, scopes: [baseTokens..., 'tasks.attribute.timestamp', 'tasks.attribute-value']
 
     it 'should archive completed tasks', ->
       editor.setText('''
