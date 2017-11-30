@@ -16,7 +16,7 @@
     "atom": ">= 1.13"
   },
   "dependencies": {
-    "moment": "~2.6.0",
+    "moment": "~2.11.2",
     "underscore": "^1.8.3"
   },
   "consumedServices": {
