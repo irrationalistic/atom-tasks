@@ -1,3 +1,4 @@
+path = require 'path'
 Tasks = require '../lib/tasks'
 tasksUtilities = require '../lib/tasksUtilities'
 [editor, buffer, grammar, workspaceElement] = []
