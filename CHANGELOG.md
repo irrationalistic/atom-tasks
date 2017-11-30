@@ -1,3 +1,10 @@
+## 2.7.0
+* Adds setting for applying timestamp when an item is converted to task (#76)
+* Re-enabled and updated all tests
+* Fix markdown in text
+* Fix completion count in taskbar (#82)
+* Updated moment version
+
 ## 2.6.7
 * Fixes #78 (thanks @stefanthaler and @Guerillero)
 

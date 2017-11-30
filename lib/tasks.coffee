@@ -28,6 +28,8 @@ module.exports =
       type: 'string', default: '＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿'
     attributeMarker:
       type: 'string', default: '@'
+    addTimestampOnConvertToTask:
+      type: 'boolean', default: false
     useTouchbar:
       type: 'boolean', default: false
 
@@ -344,6 +346,7 @@ module.exports =
     return if not editor
 
     selection = editor.getSelectedBufferRanges()
+    _this = this
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
@@ -352,7 +355,9 @@ module.exports =
           # Only set the marker if this isn't
           # already a task or header.
           tasks.setMarker editor, info, marker
-    @updateTouchbar()
+          if atom.config.get('tasks.addTimestampOnConvertToTask')
+            tasks.addTag editor, row, attributeMarker, 'timestamp', tasks.getFormattedDate()
+          _this.updateTouchbar()
 
 
   ###*

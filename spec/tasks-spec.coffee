@@ -1,256 +1,182 @@
 Tasks = require '../lib/tasks'
 tasksUtilities = require '../lib/tasksUtilities'
-[editor, buffer, workspaceElement] = []
+[editor, buffer, grammar, workspaceElement] = []
 
-find = (selector)->
-  workspaceElement.querySelectorAll "body /deep/ #{selector}"
+baseTokens = ['source.todo', 'tasks.text']
+doneTokens = ['source.todo', 'tasks.text.done']
+cancelledTokens = ['source.todo', 'tasks.text.cancelled']
 
 describe 'Tasks', ->
-###
   beforeEach ->
     waitsForPromise ->
-      atom.workspace.open('sample.todo').then (o) -> editor = o
-    runs ->
-      buffer = editor.getBuffer()
+      atom.workspace.open().then (o) -> editor = o
     waitsForPromise ->
-      atom.packages.activatePackage('language-gfm')
       atom.packages.activatePackage('tasks')
     runs ->
-      workspaceElement = atom.views.getView atom.workspace
-      jasmine.attachToDOM workspaceElement
+      grammar = atom.grammars.grammarForScopeName 'source.todo'
+      editor = atom.workspace.getActiveTextEditor()
+      editor.setGrammar grammar
 
   describe 'grammar should load', ->
     it 'loads', ->
-      grammar = atom.grammars.grammarForScopeName 'source.todo'
       expect(grammar).toBeDefined()
       expect(grammar.scopeName).toBe 'source.todo'
 
-  describe 'should syntax highlight a todo file', ->
-    it 'adds .marker to the markers', ->
-      expect(find('.marker').length).toBe 3
+  describe 'should tokenize', ->
+    it 'tokenizes a task', ->
+      tokens = grammar.tokenizeLines('☐ text @tag(test)')
+      expect(tokens[0][0]).toEqual value: '☐', scopes: [baseTokens..., 'keyword.tasks.marker']
+      expect(tokens[0][1]).toEqual value: ' text ', scopes: baseTokens
+      expect(tokens[0][2]).toEqual value: '@', scopes: [baseTokens..., 'tasks.attribute.tag']
+      expect(tokens[0][3]).toEqual value: 'tag', scopes: [baseTokens..., 'tasks.attribute.tag', 'tasks.attribute-name']
+      # skip (
+      expect(tokens[0][5]).toEqual value: 'test', scopes: [baseTokens..., 'tasks.attribute.tag', 'tasks.attribute-value']
 
-    it 'adds .attribute to @tags', ->
-      expect(find('.attribute').length).toBe 7
+    it 'tokenizes a project', ->
+      tokens = grammar.tokenizeLines('project:')
+      expect(tokens[0][0]).toEqual value: 'project', scopes: ['source.todo', 'control.tasks.header.project', 'control.tasks.header-title']
 
-    it 'adds .text to plain text', ->
-      expect(find('.text').length).toBe 3
+    it 'tokenizes a completed task', ->
+      tokens = grammar.tokenizeLines('✔ text @done()')
+      expect(tokens[0][3]).toEqual value: 'done', scopes: [doneTokens..., 'tasks.attribute.done', 'tasks.attribute-name']
 
-    it 'supports markdown in plain text', ->
-      expect(find('.bold').length).toBe 1
-      expect(find('.italic').length).toBe 1
-      expect(find('.link').length).toBe 2
+    it 'tokenizes a cancelled task', ->
+      tokens = grammar.tokenizeLines('✘ text @cancelled()')
+      expect(tokens[0][3]).toEqual value: 'cancelled', scopes: [cancelledTokens..., 'tasks.attribute.cancelled', 'tasks.attribute-name']
 
-  describe 'should be able to add new tasks', ->
-    it 'adds a new task', ->
+  describe 'manage tasks', ->
+    it 'creates a task below', ->
+      editor.setText '  ☐ item 1'
       Tasks.newTask()
-      editor.insertText 'Todo Item from tests'
-      line = editor.displayBuffer.tokenizedBuffer.tokenizedLines[1]
-      expect(find('.marker').length).toBe 4
-      expect(line.indentLevel).toBe 1
+      editor.insertText 'item 2'
+      line = editor.tokenizedBuffer.tokenizedLines[1]
+      expect(line.tokens[1]).toEqual value: '☐', scopes: [baseTokens..., 'keyword.tasks.marker']
+      expect(editor.indentationForBufferRow 1).toBe 1
 
-    it 'adds a new task above', ->
+    it 'creates a task above', ->
+      editor.setText '  ☐ item 1'
       Tasks.newTask(-1)
-      editor.insertText 'Todo Item from tests'
-      line = editor.displayBuffer.tokenizedBuffer.tokenizedLines[1]
-      expect(find('.marker').length).toBe 4
-      expect(line.indentLevel).toBe 0
+      editor.insertText 'item 2'
+      line = editor.tokenizedBuffer.tokenizedLines[0]
+      expect(line.tokens[1]).toEqual value: '☐', scopes: [baseTokens..., 'keyword.tasks.marker']
+      expect(editor.indentationForBufferRow 1).toBe 1
 
-  describe 'should be able to complete tasks', ->
-    it 'completes a task', ->
+    it 'completes tasks', ->
+      editor.setText 'project:\n  ☐ item 1'
       editor.setCursorBufferPosition [1,0]
       Tasks.completeTask()
-      doneTasks = tasksUtilities.getLinesByToken editor,
-        'tasks.text.done.source.gfm'
-      projectTasks = tasksUtilities.getLinesByToken editor,
-        'tasks.attribute.project'
+      line = editor.tokenizedBuffer.tokenizedLines[1]
+      expect(line.tokens[1]).toEqual value: '✔', scopes: [doneTokens..., 'keyword.tasks.marker']
+      expect(line.tokens[4]).toEqual value: 'done', scopes: [doneTokens..., 'tasks.attribute.done', 'tasks.attribute-name']
+      expect(line.tokens[12]).toEqual value: 'project', scopes: [doneTokens..., 'tasks.attribute.project', 'tasks.attribute-value']
 
-      expect(doneTasks.length).toBe 2
-      expect(projectTasks.length).toBe 3
-
-  describe 'should be able to cancel tasks', ->
-    it 'cancels a task', ->
+    it 'cancels tasks', ->
+      editor.setText 'project:\n  ☐ item 1'
       editor.setCursorBufferPosition [1,0]
       Tasks.cancelTask()
-      cancelled = tasksUtilities.getLinesByToken editor,
-        'tasks.text.cancelled.source.gfm'
-      projectTasks = tasksUtilities.getLinesByToken editor,
-        'tasks.attribute.project'
+      line = editor.tokenizedBuffer.tokenizedLines[1]
+      expect(line.tokens[1]).toEqual value: '✘', scopes: [cancelledTokens..., 'keyword.tasks.marker']
+      expect(line.tokens[4]).toEqual value: 'cancelled', scopes: [cancelledTokens..., 'tasks.attribute.cancelled', 'tasks.attribute-name']
+      expect(line.tokens[12]).toEqual value: 'project', scopes: [cancelledTokens..., 'tasks.attribute.project', 'tasks.attribute-value']
 
-      expect(cancelled.length).toBe 2
-      expect(projectTasks.length).toBe 3
-
-  describe 'should be able to set/update timestamps', ->
-    it 'adds a timestamp', ->
-      editor.setCursorBufferPosition [1,0]
+    it 'should add a timestamp', ->
+      editor.setText '  ☐ item 1'
       Tasks.setTimestamp()
-      timestampTag = tasksUtilities.getTag editor, 1, 'timestamp', '@'
-      expect(timestampTag).toBeDefined()
+      line = editor.tokenizedBuffer.tokenizedLines[0]
+      expect(line.tokens[4]).toEqual value: 'timestamp', scopes: [baseTokens..., 'tasks.attribute.timestamp', 'tasks.attribute-name']
+      expect(line.tokens[6]).toEqual value: '1969-12-31 16:00', scopes: [baseTokens..., 'tasks.attribute.timestamp', 'tasks.attribute-value']
 
     it 'should update a timestamp', ->
-      curDate = tasksUtilities.getFormattedDate()
-      editor.setCursorBufferPosition [2,0]
+      editor.setText '  ✔ item 1 @done(1970-1-1 0:00)'
       Tasks.setTimestamp()
-      doneTag = tasksUtilities.getTag editor, 2, 'done', '@'
-      expect(doneTag.tagValue.value).toBe(curDate)
+      line = editor.tokenizedBuffer.tokenizedLines[0]
+      expect(line.tokens[6]).toEqual value: '1969-12-31 16:00', scopes: [doneTokens..., 'tasks.attribute.done', 'tasks.attribute-value']
 
-  describe 'should be able to archive completed tasks', ->
-    it 'creates an archive section', ->
-      preText = editor.getText()
-      editor.setCursorBufferPosition [1,0]
-      Tasks.completeTask()
+    it 'should convert to task', ->
+      editor.setText 'item'
+      Tasks.convertToTask()
+      line = editor.tokenizedBuffer.tokenizedLines[0]
+      expect(line.tokens[0]).toEqual value: '☐', scopes: [baseTokens..., 'keyword.tasks.marker']
+
+    it 'should convert to task with timestamp', ->
+      atom.config.set 'tasks.addTimestampOnConvertToTask', true
+      editor.setText 'item'
+      Tasks.convertToTask()
+      line = editor.tokenizedBuffer.tokenizedLines[0]
+      expect(line.tokens[5]).toEqual value: '1969-12-31 16:00', scopes: [baseTokens..., 'tasks.attribute.timestamp', 'tasks.attribute-value']
+
+    it 'should archive completed tasks', ->
+      editor.setText('''
+      project:
+        ☐ item 1
+        ✔ item 2 @done(1970-1-1 0:00) @project(project)
+      ''')
       Tasks.tasksArchive()
+      line = editor.tokenizedBuffer.tokenizedLines[3]
+      expect(line.tokens[0]).toEqual value: '＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿', scopes: ['source.todo']
+      line = editor.tokenizedBuffer.tokenizedLines[4]
+      expect(line.tokens[0]).toEqual value: 'Archive', scopes: ['source.todo', 'control.tasks.header.archive', 'control.tasks.header-title']
+      line = editor.tokenizedBuffer.tokenizedLines[5]
+      expect(line.tokens[2]).toEqual value: ' item 2 ', scopes: doneTokens
 
-      archive = tasksUtilities.getLinesByToken editor,
-        'tasks.header.archive'
-      expect(archive).toBeDefined()
-
-    it 'moves completed tasks', ->
-      preText = editor.getText()
-      editor.setCursorBufferPosition [1,0]
-      Tasks.completeTask()
+    it 'should archive cancelled tasks', ->
+      editor.setText('''
+      project:
+        ☐ item 1
+        ✘ item 2 @cancelled(1970-1-1 0:00) @project(project)
+      ''')
       Tasks.tasksArchive()
+      line = editor.tokenizedBuffer.tokenizedLines[5]
+      expect(line.tokens[2]).toEqual value: ' item 2 ', scopes: cancelledTokens
 
-      lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
-      line = lines[lines.length - 3]
-      hasCancelled = tasksUtilities.getToken line.tokens, 'tasks.text.done'
-
-      expect(hasCancelled).toBeDefined()
-
-    it 'moves cancelled tasks', ->
-      preText = editor.getText()
-      editor.setCursorBufferPosition [1,0]
-      Tasks.cancelTask()
-      Tasks.tasksArchive()
-
-      lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
-      line = lines[lines.length - 2]
-      hasCancelled = tasksUtilities.getToken line.tokens, 'tasks.text.cancelled'
-
-      expect(hasCancelled).toBeDefined()
-
-  describe 'helper methods should work', ->
-    it 'can add a tag with or without a value', ->
-      editor.setCursorBufferPosition [1,0]
-      lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
-
-      tasksUtilities.addTag editor, 1, '@', 'noval'
-
-      line = lines[1]
-      hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute.noval'
-      expect(hasTag).toBeDefined()
-
-      tasksUtilities.addTag editor, 1, '@', 'hasval', 'myvalue'
-
-      line = lines[1]
-      hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute.hasval'
-      expect(hasTag).toBeDefined()
-
-    it 'can update tag values', ->
-      editor.setCursorBufferPosition [1,0]
-      lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
-
-      tasksUtilities.addTag editor, 1, '@', 'original'
-
-      line = lines[1]
-      hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute.original'
-      expect(hasTag).toBeDefined()
-
-      tasksUtilities.updateTag editor, 1, '@', 'original', 'newval'
-      line = lines[1]
-      hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute-value'
-      expect(hasTag).toBeDefined()
-
-      tasksUtilities.updateTag editor, 1, '@', 'original'
-      line = lines[1]
-      hasTag = tasksUtilities.getToken line.tokens, 'tasks.attribute-value'
-      expect(hasTag).toBeNull()
-
-    it 'supports custom attribute markers', ->
-      atom.config.set 'tasks.attributeMarker', '#'
-      editor.setText '☐ Test'
-      tasksUtilities.addTag editor, 0, '#', 'test'
-
-      lines = editor.displayBuffer.tokenizedBuffer.tokenizedLines
-
-      hasTag = tasksUtilities.getToken lines[0].tokens, 'tasks.attribute.test'
-      expect(hasTag).toBeDefined()
-
-
-describe 'Taskpaper', ->
-
-  beforeEach ->
-    waitsForPromise ->
-      atom.workspace.open('sample.taskpaper').then (o) -> editor = o
-    runs ->
-      buffer = editor.getBuffer()
-    waitsForPromise ->
-      atom.packages.activatePackage('tasks')
-    runs ->
+  describe 'Taskpaper', ->
+    beforeEach ->
       atom.config.set 'tasks.baseMarker', '-'
       atom.config.set 'tasks.completeMarker', '-'
       atom.config.set 'tasks.cancelledMarker', '-'
-      workspaceElement = atom.views.getView atom.workspace
-      jasmine.attachToDOM workspaceElement
+      grammar = atom.grammars.grammarForScopeName 'source.todo'
+      editor.setGrammar grammar
 
-  describe 'should syntax highlight a taskpaper file', ->
-    it 'adds .marker to the markers', ->
-      expect(find('.marker').length).toBe 6
+    describe 'should tokenize', ->
+      it 'tokenizes a task', ->
+        tokens = grammar.tokenizeLines('- text @tag(test)')
+        expect(tokens[0][0]).toEqual value: '-', scopes: [baseTokens..., 'keyword.tasks.marker']
+        expect(tokens[0][1]).toEqual value: ' text ', scopes: baseTokens
+        expect(tokens[0][2]).toEqual value: '@', scopes: [baseTokens..., 'tasks.attribute.tag']
+        expect(tokens[0][3]).toEqual value: 'tag', scopes: [baseTokens..., 'tasks.attribute.tag', 'tasks.attribute-name']
+        # skip (
+        expect(tokens[0][5]).toEqual value: 'test', scopes: [baseTokens..., 'tasks.attribute.tag', 'tasks.attribute-value']
 
-    it 'adds .attribute to @tags', ->
-      expect(find('.attribute').length).toBe 2
+      it 'tokenizes a completed task', ->
+        tokens = grammar.tokenizeLines('- text @done()')
+        expect(tokens[0][3]).toEqual value: 'done', scopes: [doneTokens..., 'tasks.attribute.done', 'tasks.attribute-name']
 
-    it 'adds .text to plain text', ->
-      expect(find('.text').length).toBe 6
+      it 'tokenizes a cancelled task', ->
+        tokens = grammar.tokenizeLines('- text @cancelled()')
+        expect(tokens[0][3]).toEqual value: 'cancelled', scopes: [cancelledTokens..., 'tasks.attribute.cancelled', 'tasks.attribute-name']
 
-  describe 'should support the same marker for base, done, and cancelled', ->
-    it 'can complete a task', ->
-      editor.setCursorBufferPosition [1,0]
-      Tasks.completeTask()
+    describe 'Complex markers', ->
+      beforeEach ->
+        atom.config.set 'tasks.baseMarker', '[ ]'
+        atom.config.set 'tasks.completeMarker', '[x]'
+        atom.config.set 'tasks.cancelledMarker', '[-]'
+        grammar = atom.grammars.grammarForScopeName 'source.todo'
+        editor.setGrammar grammar
 
-      doneTasks = tasksUtilities.getLinesByToken editor,
-        'tasks.text.done.source.gfm'
-      projectTasks = tasksUtilities.getLinesByToken editor,
-        'tasks.attribute.project'
+      describe 'should tokenize', ->
+        it 'tokenizes a task', ->
+          tokens = grammar.tokenizeLines('[ ] text @tag(test)')
+          expect(tokens[0][0]).toEqual value: '[ ]', scopes: [baseTokens..., 'keyword.tasks.marker']
+          expect(tokens[0][1]).toEqual value: ' text ', scopes: baseTokens
+          expect(tokens[0][2]).toEqual value: '@', scopes: [baseTokens..., 'tasks.attribute.tag']
+          expect(tokens[0][3]).toEqual value: 'tag', scopes: [baseTokens..., 'tasks.attribute.tag', 'tasks.attribute-name']
+          # skip (
+          expect(tokens[0][5]).toEqual value: 'test', scopes: [baseTokens..., 'tasks.attribute.tag', 'tasks.attribute-value']
 
-      expect(doneTasks.length).toBe 1
-      expect(projectTasks.length).toBe 1
+        it 'tokenizes a completed task', ->
+          tokens = grammar.tokenizeLines('[x] text @done()')
+          expect(tokens[0][3]).toEqual value: 'done', scopes: [doneTokens..., 'tasks.attribute.done', 'tasks.attribute-name']
 
-describe 'Complex Markers', ->
-
-  beforeEach ->
-    waitsForPromise ->
-      atom.workspace.open('complexMarkers.todo').then (o) -> editor = o
-    runs ->
-      buffer = editor.getBuffer()
-    waitsForPromise ->
-      atom.packages.activatePackage('tasks')
-    runs ->
-      atom.config.set 'tasks.baseMarker', '[ ]'
-      atom.config.set 'tasks.completeMarker', '[x]'
-      atom.config.set 'tasks.cancelledMarker', '[-]'
-      workspaceElement = atom.views.getView atom.workspace
-      jasmine.attachToDOM workspaceElement
-
-  describe 'should syntax highlight a complex marker file', ->
-    it 'adds .marker to the markers', ->
-      expect(find('.marker').length).toBe 3
-
-    it 'adds .attribute to @tags', ->
-      expect(find('.attribute').length).toBe 1
-
-    it 'adds .text to plain text', ->
-      expect(find('.text').length).toBe 3
-
-  describe 'should support the same marker for base, done, and cancelled', ->
-    it 'can complete a task', ->
-      editor.setCursorBufferPosition [1,0]
-      Tasks.completeTask()
-
-      doneTasks = tasksUtilities.getLinesByToken editor,
-        'tasks.text.done.source.gfm'
-      projectTasks = tasksUtilities.getLinesByToken editor,
-        'tasks.attribute.project'
-
-      expect(doneTasks.length).toBe 1
-      expect(projectTasks.length).toBe 1
-###
+        it 'tokenizes a cancelled task', ->
+          tokens = grammar.tokenizeLines('[-] text @cancelled()')
+          expect(tokens[0][3]).toEqual value: 'cancelled', scopes: [cancelledTokens..., 'tasks.attribute.cancelled', 'tasks.attribute-name']

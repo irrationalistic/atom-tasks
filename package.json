@@ -1,7 +1,7 @@
 {
   "name": "tasks",
   "main": "./lib/tasks",
-  "version": "2.6.7",
+  "version": "2.7.0",
   "description": "Manage your todo lists",
   "keywords": [
     "tasks",
@@ -16,7 +16,7 @@
     "atom": ">= 1.13"
   },
   "dependencies": {
-    "moment": "~2.6.0",
+    "moment": "~2.11.2",
     "underscore": "^1.8.3"
   },
   "consumedServices": {
