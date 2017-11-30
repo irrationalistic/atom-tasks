@@ -28,6 +28,8 @@ module.exports =
       type: 'string', default: '＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿'
     attributeMarker:
       type: 'string', default: '@'
+    addTimestampOnConvertToTask:
+      type: 'boolean', default: false
 
 
 
@@ -298,6 +300,8 @@ module.exports =
           # Only set the marker if this isn't
           # already a task or header.
           tasks.setMarker editor, info, marker
+          if atom.config.get('tasks.addTimestampOnConvertToTask')
+            tasks.addTag editor, row, attributeMarker, 'timestamp', tasks.getFormattedDate()
 
 
   ###*

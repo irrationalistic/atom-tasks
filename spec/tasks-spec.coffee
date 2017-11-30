@@ -92,6 +92,19 @@ describe 'Tasks', ->
       line = editor.tokenizedBuffer.tokenizedLines[0]
       expect(line.tokens[6]).toEqual value: '1969-12-31 16:00', scopes: [doneTokens..., 'tasks.attribute.done', 'tasks.attribute-value']
 
+    it 'should convert to task', ->
+      editor.setText 'item'
+      Tasks.convertToTask()
+      line = editor.tokenizedBuffer.tokenizedLines[0]
+      expect(line.tokens[0]).toEqual value: '☐', scopes: [baseTokens..., 'keyword.tasks.marker']
+
+    it 'should convert to task with timestamp', ->
+      atom.config.set 'tasks.addTimestampOnConvertToTask', true
+      editor.setText 'item'
+      Tasks.convertToTask()
+      line = editor.tokenizedBuffer.tokenizedLines[0]
+      expect(line.tokens[5]).toEqual value: '1969-12-31 16:00', scopes: [baseTokens..., 'tasks.attribute.timestamp', 'tasks.attribute-value']
+
     it 'should archive completed tasks', ->
       editor.setText('''
       project:
