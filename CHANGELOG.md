@@ -1,3 +1,7 @@
+## 2.8.0
+* Escape parentheses when adding tags (thanks @paulroub), fixes #74
+* Fix for timezones in tests (thanks @paulroub)
+
 ## 2.7.0
 * Adds setting for applying timestamp when an item is converted to task (#76)
 * Re-enabled and updated all tests
