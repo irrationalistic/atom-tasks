@@ -346,6 +346,7 @@ module.exports =
     return if not editor
 
     selection = editor.getSelectedBufferRanges()
+    _this = this
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
@@ -356,7 +357,7 @@ module.exports =
           tasks.setMarker editor, info, marker
           if atom.config.get('tasks.addTimestampOnConvertToTask')
             tasks.addTag editor, row, attributeMarker, 'timestamp', tasks.getFormattedDate()
-          @updateTouchbar()
+          _this.updateTouchbar()
 
 
   ###*
