@@ -1,7 +1,6 @@
 tasks = require '../tasksUtilities'
 _ = require 'underscore'
 
-
 class TaskStatusView extends HTMLElement
   initialize: ->
     @classList.add('task-status', 'inline-block')
@@ -37,7 +36,6 @@ class TaskStatusView extends HTMLElement
     @style.display = 'none'
     false
 
-
   updateStatus: ->
     if @checkIsTasks()
       tokenizedLines = @editor.tokenizedBuffer.tokenizedLines
@@ -64,7 +62,6 @@ class TaskStatusView extends HTMLElement
       completed = '-' if isNaN completed
       total = '-' if isNaN total
       @textContent = "(#{completed}/#{total})"
-
 
 module.exports = document.registerElement 'status-bar-tasks',
   prototype: TaskStatusView.prototype, extends: 'div'

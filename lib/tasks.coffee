@@ -78,16 +78,14 @@ module.exports =
     config = atom.config.get('tasks')
     @useTouchbar = config.useTouchbar
 
-    _this = this
-
-    atom.config.onDidChange 'tasks.useTouchbar', ({newValue, oldValue}) ->
-      _this.useTouchbar = newValue
+    atom.config.onDidChange 'tasks.useTouchbar', ({newValue, oldValue}) =>
+      @useTouchbar = newValue
 
       if newValue != oldValue
-        _this.updateTouchbar()
+        @updateTouchbar()
 
     @activeItemSub = atom.workspace.onDidChangeActivePaneItem =>
-      _this.subscribeToActiveTextEditor()
+      @subscribeToActiveTextEditor()
 
     @subscribeToActiveTextEditor()
 
@@ -177,10 +175,10 @@ module.exports =
     if @useTouchbar && tasks.checkIsTasks()
       pt = @editor.getCursorBufferPosition()
       config = atom.config.get('tasks')
-      linf = tasks.parseLine @editor, pt.row, config
-      linf.wantArchive = @wantArchive
+      lineInfo = tasks.parseLine @editor, pt.row, config
+      lineInfo.wantArchive = @wantArchive
 
-      touchbar.update linf, (action) =>
+      touchbar.update lineInfo, (action) =>
         switch action
           when "complete" then @completeTask()
           when "new" then @createTask()
@@ -346,10 +344,9 @@ module.exports =
     return if not editor
 
     selection = editor.getSelectedBufferRanges()
-    _this = this
 
-    editor.transact ->
-      tasks.getAllSelectionRows(selection).map (row)->
+    editor.transact =>
+      tasks.getAllSelectionRows(selection).map (row) =>
         info = tasks.parseLine editor, row, atom.config.get('tasks')
         if info.type is 'text'
           # Only set the marker if this isn't
@@ -357,7 +354,7 @@ module.exports =
           tasks.setMarker editor, info, marker
           if atom.config.get('tasks.addTimestampOnConvertToTask')
             tasks.addTag editor, row, attributeMarker, 'timestamp', tasks.getFormattedDate()
-          _this.updateTouchbar()
+          @updateTouchbar()
 
 
   ###*

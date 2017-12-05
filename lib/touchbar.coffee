@@ -5,8 +5,7 @@ tasks = require './tasksUtilities'
 
 module.exports =
   update: (info, callback) ->
-    if not TouchBar
-      return
+    return if not TouchBar
 
     window = atom.getCurrentWindow()
 
@@ -36,17 +35,13 @@ module.exports =
       buttons.push @callbackButton(config.baseMarker, "Convert", callback)
       buttons.push new TouchBarSpacer({size: 'small'})
 
-    if info.wantArchive
-      buttons.push @callbackButton("⇊", "Archive", callback)
-      buttons.push new TouchBarSpacer({size: 'small'})
-
     touchBar = new TouchBar({items: buttons})
 
     window.setTouchBar(touchBar)
 
   callbackButton: (icon, command, callback, bgcolor) ->
     opts = {
-      label: icon + " " + command,
+      label: "#{icon} #{command}",
       click: () =>
         callback(command.toLowerCase())
     }
