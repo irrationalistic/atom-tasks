@@ -29,9 +29,10 @@ class TaskStatusView extends HTMLElement
     @editor = atom.workspace.getActiveTextEditor()
 
   checkIsTasks: ->
-    if @editor?.getGrammar().name is 'Tasks'
+    if tasks.checkIsTasks()
       @style.display = ''
       return true
+
     @style.display = 'none'
     false
 
@@ -50,7 +51,6 @@ class TaskStatusView extends HTMLElement
         return 'cancelled' if hasCancelled
         return 'task' if hasMarker
         return 'text'
-
 
       _.defaults info,
         done: 0, cancelled: 0

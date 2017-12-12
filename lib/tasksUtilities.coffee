@@ -263,3 +263,11 @@ module.exports =
       # need to insert the marker
       pt = new Point info.lineNumber, info.firstNonWhitespaceIndex
       editor.buffer.insert pt, markerText + ' '
+
+
+  ###*
+   * Determine if the currently-edited buffer is a task document
+  ###
+  checkIsTasks: ->
+    editor = atom.workspace.getActiveTextEditor()
+    return editor?.getGrammar().name is 'Tasks'

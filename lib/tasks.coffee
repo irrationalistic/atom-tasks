@@ -1,11 +1,11 @@
-{Point, Range} = require 'atom'
+{Point} = require 'atom'
 _ = require 'underscore'
-moment = require 'moment'
 CSON = require atom.config.resourcePath + "/node_modules/season/lib/cson.js"
 Grammar = require atom.config.resourcePath +
   "/node_modules/first-mate/lib/grammar.js"
 tasks = require './tasksUtilities'
 TaskStatusView = require './views/task-status-view'
+touchbar = require './touchbar'
 
 # Store the current settings for the markers
 marker = completeMarker = cancelledMarker = archiveSeparator = attributeMarker = ''
@@ -29,6 +29,8 @@ module.exports =
     attributeMarker:
       type: 'string', default: '@'
     addTimestampOnConvertToTask:
+      type: 'boolean', default: false
+    useTouchbar:
       type: 'boolean', default: false
 
 
@@ -72,6 +74,20 @@ module.exports =
       "tasks:cancel": => @cancelTask()
       "tasks:convert-to-task": => @convertToTask()
       "tasks:set-timestamp": => @setTimestamp()
+
+    config = atom.config.get('tasks')
+    @useTouchbar = config.useTouchbar
+
+    atom.config.onDidChange 'tasks.useTouchbar', ({newValue, oldValue}) =>
+      @useTouchbar = newValue
+
+      if newValue != oldValue
+        @updateTouchbar()
+
+    @activeItemSub = atom.workspace.onDidChangeActivePaneItem =>
+      @subscribeToActiveTextEditor()
+
+    @subscribeToActiveTextEditor()
 
 
 
@@ -125,6 +141,9 @@ module.exports =
     @taskStatus.initialize()
     @statusBarTile = statusBar.addLeftTile(item: @taskStatus, priority: 100)
 
+  getActiveTextEditor: ->
+    @editor = atom.workspace.getActiveTextEditor()
+
 
   ###*
    * Handle deactivation of the plugin. Remove
@@ -133,7 +152,41 @@ module.exports =
   deactivate: ->
     @statusBarTile?.destroy()
     @statusBarTile = null
+    @activeItemSub.dispose()
+    @moveSub?.dispose()
 
+  ###*
+   * Watch updates on our editor-in-progress
+  ###
+  subscribeToActiveTextEditor: ->
+    @moveSub?.dispose()
+    @moveSub = @getActiveTextEditor()?.onDidChangeCursorPosition =>
+      pos = @getActiveTextEditor()?.getCursorBufferPosition()
+      if pos.row != @lastLine
+        @lastLine = pos.row
+        @updateTouchbar()
+    @updateTouchbar()
+
+
+  ###*
+   * Update our active buttons based on the current line.
+  ###
+  updateTouchbar: ->
+    if @useTouchbar && tasks.checkIsTasks()
+      pt = @editor.getCursorBufferPosition()
+      config = atom.config.get('tasks')
+      lineInfo = tasks.parseLine @editor, pt.row, config
+      lineInfo.wantArchive = @wantArchive
+
+      touchbar.update lineInfo, (action) =>
+        switch action
+          when "complete" then @completeTask()
+          when "new" then @createTask()
+          when "cancel" then @cancelTask()
+          when "convert" then @convertToTask()
+          when "archive" then @archiveTasks()
+    else
+      touchbar.update({}, null)
 
 
   ###*
@@ -270,7 +323,6 @@ module.exports =
 
     editor.transact ->
       tasks.getAllSelectionRows(selection).map (row)->
-        screenLine = editor.tokenizedBuffer.tokenizedLines[row]
         # These tags will receive updated timestamps
         # based on existing ones
         tagsToUpdate = ['done', 'cancelled', 'timestamp']
@@ -293,8 +345,8 @@ module.exports =
 
     selection = editor.getSelectedBufferRanges()
 
-    editor.transact ->
-      tasks.getAllSelectionRows(selection).map (row)->
+    editor.transact =>
+      tasks.getAllSelectionRows(selection).map (row) =>
         info = tasks.parseLine editor, row, atom.config.get('tasks')
         if info.type is 'text'
           # Only set the marker if this isn't
@@ -302,6 +354,7 @@ module.exports =
           tasks.setMarker editor, info, marker
           if atom.config.get('tasks.addTimestampOnConvertToTask')
             tasks.addTag editor, row, attributeMarker, 'timestamp', tasks.getFormattedDate()
+          @updateTouchbar()
 
 
   ###*
