@@ -1,3 +1,6 @@
+## 2.9.0
+* Add osx touchbar support (thanks @paulroub!)
+
 ## 2.8.0
 * Escape parentheses when adding tags (thanks @paulroub), fixes #74
 * Fix for timezones in tests (thanks @paulroub)
