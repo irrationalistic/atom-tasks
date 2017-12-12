@@ -1,3 +1,6 @@
+## 2.9.1
+* Fix bug with "new task" action in touchbar
+
 ## 2.9.0
 * Add osx touchbar support (thanks @paulroub!)
 

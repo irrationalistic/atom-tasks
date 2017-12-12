@@ -181,7 +181,7 @@ module.exports =
       touchbar.update lineInfo, (action) =>
         switch action
           when "complete" then @completeTask()
-          when "new" then @createTask()
+          when "new" then @newTask()
           when "cancel" then @cancelTask()
           when "convert" then @convertToTask()
           when "archive" then @archiveTasks()
