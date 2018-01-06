@@ -206,8 +206,6 @@ module.exports =
       editor.insertNewlineAbove() if direction is -1
       editor.insertText "#{marker} "
 
-      editor.indentSelectedRows() if info.type is 'project' and direction is 1
-
 
 
   ###*
