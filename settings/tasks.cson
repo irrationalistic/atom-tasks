@@ -1,0 +1,4 @@
+'.source.todo, .source.taskpaper':
+  'editor':
+    'autoIndentOnPaste': false
+    'increaseIndentPattern': '^.*:$'
