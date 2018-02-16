@@ -1,3 +1,6 @@
+## 2.10.1
+* Fix bug with requiring built-in season lib as opposed to node_modules one. Fixes #93
+
 ## 2.10.0
 * Fix bug with atom 1.24 new grammar system by writing dynamic grammar
   to intermediate file, fixes #92, #88

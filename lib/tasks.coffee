@@ -1,8 +1,6 @@
 {Point} = require 'atom'
 _ = require 'underscore'
-CSON = require atom.config.resourcePath + "/node_modules/season/lib/cson.js"
-Grammar = require atom.config.resourcePath +
-  "/node_modules/first-mate/lib/grammar.js"
+CSON = require 'season'
 tasks = require './tasksUtilities'
 TaskStatusView = require './views/task-status-view'
 touchbar = require './touchbar'
