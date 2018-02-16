@@ -49,20 +49,20 @@ describe 'Tasks', ->
 
   describe 'manage tasks', ->
     it 'creates a task below', ->
-      editor.setText '  ☐ item 1'
+      editor.setText '☐ item 1'
       Tasks.newTask()
       editor.insertText 'item 2'
       line = editor.tokenizedBuffer.tokenizedLines[1]
-      expect(line.tokens[1]).toEqual value: '☐', scopes: [baseTokens..., 'keyword.tasks.marker']
-      expect(editor.indentationForBufferRow 1).toBe 1
+      expect(line.tokens[0]).toEqual value: '☐', scopes: [baseTokens..., 'keyword.tasks.marker']
+      expect(editor.indentationForBufferRow 1).toBe 0
 
     it 'creates a task above', ->
-      editor.setText '  ☐ item 1'
+      editor.setText '☐ item 1'
       Tasks.newTask(-1)
       editor.insertText 'item 2'
       line = editor.tokenizedBuffer.tokenizedLines[0]
-      expect(line.tokens[1]).toEqual value: '☐', scopes: [baseTokens..., 'keyword.tasks.marker']
-      expect(editor.indentationForBufferRow 1).toBe 1
+      expect(line.tokens[0]).toEqual value: '☐', scopes: [baseTokens..., 'keyword.tasks.marker']
+      expect(editor.indentationForBufferRow 1).toBe 0
 
     it 'completes tasks', ->
       editor.setText 'project:\n  ☐ item 1'

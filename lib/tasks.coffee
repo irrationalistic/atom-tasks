@@ -121,15 +121,11 @@ module.exports =
 
     # first, clear existing grammar
     atom.grammars.removeGrammarForScopeName 'source.todo'
-    newG = new Grammar atom.grammars, g
-    atom.grammars.addGrammar newG
 
-    # Reset all todo grammars to match
-    atom.workspace.getTextEditors().map (editorView) ->
-      grammar = editorView.getGrammar()
-      if grammar.name is 'Tasks'
-        editorView.setGrammar newG
-
+    # Write updated grammar to file, then update the atom grammar
+    tasks.writeGrammarSync(g)
+    newGrammar = atom.grammars.loadGrammarSync tasks.grammarPath
+    atom.grammars.addGrammar newGrammar
 
 
   ###*

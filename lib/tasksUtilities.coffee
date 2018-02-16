@@ -1,6 +1,8 @@
 {Point, Range} = require 'atom'
 _ = require 'underscore'
+CSON = require 'season'
 moment = require 'moment'
+path = require 'path'
 
 # ATTRIBUTE_RX = /( ?)(@[ ]?(([\w]+)(\((.*?)\))?))/gi
 
@@ -12,11 +14,23 @@ module.exports =
   archiveSelector: 'control.tasks.header.archive'
   headerSelector: 'control.tasks.header-title'
 
+  grammarPath: path.join process.env.ATOM_HOME, 'TasksGrammar.cson'
+
     # Escape a string
   cleanRegex: (str)->
     for pat in ['\\', '/', '[', ']', '*', '.', '+', '(', ')']
       str = str.replace pat, '\\' + pat
     str
+
+  ###*
+   * Write a new grammar file to disk so that it can be loaded in
+   * dynamically.
+   * @param  {Object} grammarObj The object to write to disk representing
+   *                              the grammar content as CSON
+   * @return void
+  ###
+  writeGrammarSync: (grammarObj) ->
+    CSON.writeFileSync @grammarPath, grammarObj
 
   parseLine: (editor, lineNumber, config) ->
     whiteRx = /^\s*/

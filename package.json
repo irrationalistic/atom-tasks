@@ -17,7 +17,8 @@
   },
   "dependencies": {
     "moment": "~2.11.2",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "season": "~6.0.2"
   },
   "consumedServices": {
     "status-bar": {
