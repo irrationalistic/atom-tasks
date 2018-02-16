@@ -1,6 +1,7 @@
 ## 2.10.0
 * Fix bug with atom 1.24 new grammar system by writing dynamic grammar
   to intermediate file, fixes #92, #88
+* Merge fix for indentation (thanks @javs)
 
 ## 2.9.1
 * Fix bug with "new task" action in touchbar
